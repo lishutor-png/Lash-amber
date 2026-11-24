@@ -115,9 +115,9 @@ export const StatusModal: React.FC<StatusModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Tutup Status"
-            className="min-h-[40px] min-w-[40px] rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
+            className="min-h-[44px] min-w-[44px] rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </header>
 
@@ -126,25 +126,25 @@ export const StatusModal: React.FC<StatusModalProps> = ({
           <button
             type="button"
             onClick={() => setTab('STATUS')}
-            className={`min-h-[38px] px-3.5 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 border cursor-pointer whitespace-nowrap ${
+            className={`min-h-[44px] px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border cursor-pointer whitespace-nowrap ${
               tab === 'STATUS'
                 ? 'bg-[#C89B3C] text-[#0D0F10] border-[#F5E6C4]'
                 : 'bg-[#1C2024] text-[#E6E2D8] border-[#3A4046]'
             }`}
           >
-            <User className="w-3.5 h-3.5" />
+            <User className="w-4 h-4" />
             <span>Status & Perlengkapan</span>
           </button>
           <button
             type="button"
             onClick={() => setTab('COMPANIONS')}
-            className={`min-h-[38px] px-3.5 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 border cursor-pointer whitespace-nowrap ${
+            className={`min-h-[44px] px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border cursor-pointer whitespace-nowrap ${
               tab === 'COMPANIONS'
                 ? 'bg-[#C89B3C] text-[#0D0F10] border-[#F5E6C4]'
                 : 'bg-[#1C2024] text-[#E6E2D8] border-[#3A4046]'
             }`}
           >
-            <PawPrint className="w-3.5 h-3.5" />
+            <PawPrint className="w-4 h-4" />
             <span>Koleksi Pendamping ({player.companions.length})</span>
           </button>
         </div>
@@ -263,8 +263,8 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                     {player.companion ? (
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-9 h-9 shrink-0 rounded bg-[#0D0F10] border border-[#C89B3C]/60 flex items-center justify-center">
-                            <AnimalPortrait species={player.companion.species} size={32} />
+                          <div className="w-11 h-11 shrink-0 rounded-lg bg-[#0D0F10] border border-[#C89B3C]/60 flex items-center justify-center">
+                            <AnimalPortrait species={player.companion.species} size={38} />
                           </div>
                           <div className="min-w-0 text-xs">
                             <div className="font-bold text-[#E5B85A] truncate">
@@ -281,7 +281,7 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setTab('COMPANIONS')}
-                          className="min-h-[32px] px-2.5 py-1 rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-[11px] font-semibold text-[#F5E6C4] cursor-pointer whitespace-nowrap"
+                          className="min-h-[42px] px-3.5 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-bold text-[#F5E6C4] cursor-pointer whitespace-nowrap"
                         >
                           Kelola
                         </button>
@@ -320,17 +320,17 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                           key={slot}
                           type="button"
                           onClick={() => setSelectedSlot(slot)}
-                          className={`p-2 rounded border text-left transition cursor-pointer flex items-center gap-2 min-h-[54px] ${
+                          className={`p-2 rounded-lg border text-left transition cursor-pointer flex items-center gap-2 min-h-[64px] ${
                             active
                               ? 'bg-[#17281E] border-[#C89B3C]'
                               : 'bg-[#14171A] border-[#2A3036] hover:border-[#5A626A]'
                           }`}
                         >
-                          <div className="w-8 h-8 shrink-0 rounded bg-[#0D0F10] border border-[#252A2E] flex items-center justify-center">
+                          <div className="w-11 h-11 shrink-0 rounded-lg bg-[#0D0F10] border border-[#252A2E] flex items-center justify-center">
                             {itemId ? (
-                              <ItemPixelIcon itemId={itemId} size={24} />
+                              <ItemPixelIcon itemId={itemId} size={36} />
                             ) : (
-                              <Shield className="w-3.5 h-3.5 text-[#3A4046]" />
+                              <Shield className="w-4 h-4 text-[#3A4046]" />
                             )}
                           </div>
                           <div className="min-w-0 flex-1">
@@ -350,7 +350,7 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                   </div>
 
                   {/* Selected Slot Detail & Unequip */}
-                  <div className="p-2.5 rounded bg-[#14171A] border border-[#2A3036] space-y-2">
+                  <div className="p-2.5 rounded-lg bg-[#14171A] border border-[#2A3036] space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <div>
                         <div className="text-[11px] text-[#9BA3AB]">
@@ -374,7 +374,7 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                             const res = onUnequipSlot(selectedSlot);
                             setFeedback({ ok: res.success, text: res.message });
                           }}
-                          className="min-h-[34px] px-3 py-1 rounded bg-[#2C1618] hover:bg-[#442024] border border-[#9E2A2B] text-xs font-semibold text-[#F5E6C4] cursor-pointer whitespace-nowrap"
+                          className="min-h-[42px] px-3.5 py-1.5 rounded-lg bg-[#2C1618] hover:bg-[#442024] border border-[#9E2A2B] text-xs font-bold text-[#F5E6C4] cursor-pointer whitespace-nowrap"
                         >
                           Lepas ke Tas
                         </button>
@@ -432,10 +432,12 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                           return (
                             <div
                               key={itemId}
-                              className="p-2 rounded bg-[#14171A] border border-[#2A3036] flex items-center justify-between gap-2"
+                              className="p-2.5 rounded-lg bg-[#14171A] border border-[#2A3036] flex items-center justify-between gap-2.5"
                             >
-                              <div className="flex items-center gap-2 min-w-0">
-                                <ItemPixelIcon itemId={itemId} size={26} />
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="w-11 h-11 shrink-0 rounded-lg bg-[#0D0F10] border border-[#252A2E] flex items-center justify-center">
+                                  <ItemPixelIcon itemId={itemId} size={36} />
+                                </div>
                                 <div className="min-w-0">
                                   <div className="text-xs font-semibold text-[#F5E6C4] truncate">
                                     {def.name} <span className="text-[#9BA3AB] font-mono-num">x{qty}</span>
@@ -452,7 +454,7 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                                   const res = onEquipItem(itemId);
                                   setFeedback({ ok: res.success, text: res.message });
                                 }}
-                                className="min-h-[34px] px-2.5 py-1 rounded bg-[#264D34] hover:bg-[#326343] border border-[#8FC79A]/70 text-[11px] font-bold text-white cursor-pointer whitespace-nowrap shrink-0"
+                                className="min-h-[42px] px-3.5 py-1.5 rounded-lg bg-[#264D34] hover:bg-[#326343] border border-[#8FC79A]/70 text-xs font-bold text-white cursor-pointer whitespace-nowrap shrink-0"
                               >
                                 {equippedId ? 'Ganti' : 'Pasang'}
                               </button>
@@ -528,8 +530,8 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                         }`}
                       >
                         <div className="flex items-start gap-3">
-                          <div className="w-12 h-12 shrink-0 rounded bg-[#14171A] border border-[#3A4046] flex items-center justify-center">
-                            <AnimalPortrait species={comp.species} size={44} />
+                          <div className="w-14 h-14 shrink-0 rounded-lg bg-[#14171A] border border-[#3A4046] flex items-center justify-center">
+                            <AnimalPortrait species={comp.species} size={48} />
                           </div>
                           <div className="min-w-0 flex-1">
                             {isEditing ? (
@@ -539,7 +541,7 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                                   value={renameDraft}
                                   maxLength={24}
                                   onChange={(e) => setRenameDraft(e.target.value)}
-                                  className="min-w-0 flex-1 px-2 py-1 rounded bg-[#14171A] border border-[#C89B3C] text-xs text-[#F5E6C4] focus:outline-none"
+                                  className="min-w-0 flex-1 min-h-[38px] px-2.5 py-1 rounded bg-[#14171A] border border-[#C89B3C] text-xs text-[#F5E6C4] focus:outline-none"
                                   placeholder="Nama baru..."
                                 />
                                 <button
@@ -554,18 +556,18 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                                     }
                                     setEditingCompanionId(null);
                                   }}
-                                  className="min-h-[28px] px-2 rounded bg-[#264D34] text-white cursor-pointer"
+                                  className="min-h-[38px] min-w-[38px] px-2 rounded bg-[#264D34] text-white cursor-pointer flex items-center justify-center"
                                   aria-label="Simpan Nama"
                                 >
-                                  <Check className="w-3.5 h-3.5" />
+                                  <Check className="w-4 h-4" />
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => setEditingCompanionId(null)}
-                                  className="min-h-[28px] px-2 rounded bg-[#1C2024] text-[#9BA3AB] cursor-pointer"
+                                  className="min-h-[38px] min-w-[38px] px-2 rounded bg-[#1C2024] text-[#9BA3AB] cursor-pointer flex items-center justify-center"
                                   aria-label="Batal Ubah Nama"
                                 >
-                                  <X className="w-3.5 h-3.5" />
+                                  <X className="w-4 h-4" />
                                 </button>
                               </div>
                             ) : (
@@ -581,9 +583,9 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                                       setRenameDraft(comp.name);
                                     }}
                                     aria-label={`Ubah nama ${comp.name}`}
-                                    className="text-[#8F969E] hover:text-[#E5B85A] cursor-pointer"
+                                    className="p-1 text-[#8F969E] hover:text-[#E5B85A] cursor-pointer"
                                   >
-                                    <Edit3 className="w-3 h-3" />
+                                    <Edit3 className="w-3.5 h-3.5" />
                                   </button>
                                 </div>
                                 <span className="text-[11px] font-mono-num text-[#E5B85A] shrink-0">
@@ -634,7 +636,7 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                           <button
                             type="button"
                             onClick={() => onSelectCompanion(comp.active ? null : comp.id)}
-                            className={`flex-1 min-h-[38px] px-3 py-1.5 rounded text-xs font-bold cursor-pointer border whitespace-nowrap ${
+                            className={`flex-1 min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer border whitespace-nowrap ${
                               comp.active
                                 ? 'bg-[#22272B] hover:bg-[#2F353B] border-[#5A626A] text-[#E6E2D8]'
                                 : 'bg-[#264D34] hover:bg-[#326343] border-[#8FC79A] text-white'
@@ -647,7 +649,7 @@ export const StatusModal: React.FC<StatusModalProps> = ({
                             type="button"
                             onClick={() => setReleaseCandidateId(comp.id)}
                             title="Lepaskan Pendamping"
-                            className="min-h-[38px] px-2.5 py-1.5 rounded bg-[#2C1618] hover:bg-[#442024] border border-[#9E2A2B] text-[#E5989B] text-xs font-semibold flex items-center gap-1 cursor-pointer whitespace-nowrap"
+                            className="min-h-[44px] px-3 py-1.5 rounded-lg bg-[#2C1618] hover:bg-[#442024] border border-[#9E2A2B] text-[#E5989B] text-xs font-semibold flex items-center gap-1 cursor-pointer whitespace-nowrap"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                             <span>Lepas</span>

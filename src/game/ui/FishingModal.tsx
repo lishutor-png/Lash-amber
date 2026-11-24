@@ -66,7 +66,7 @@ export const FishingModal: React.FC<FishingModalProps> = ({
     return () => clearTimers();
   }, []);
 
-  // Pixel water scene animation loop
+  // HD 2D Illustrated water scene animation loop
   useEffect(() => {
     let rafId = 0;
     const renderWaterPreview = (now: number) => {
@@ -74,64 +74,144 @@ export const FishingModal: React.FC<FishingModalProps> = ({
       if (canvas) {
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          ctx.imageSmoothingEnabled = false;
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
           const w = canvas.width;
           const h = canvas.height;
-          ctx.fillStyle = '#0D1C24';
+
+          // Deep twilight water gradient
+          const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+          if (waterSpot === 'RIVER') {
+            skyGrad.addColorStop(0, '#0B1821');
+            skyGrad.addColorStop(0.22, '#133546');
+            skyGrad.addColorStop(0.68, '#1A4B60');
+            skyGrad.addColorStop(1, '#0E2936');
+          } else {
+            skyGrad.addColorStop(0, '#09161D');
+            skyGrad.addColorStop(0.25, '#112E37');
+            skyGrad.addColorStop(0.7, '#18424D');
+            skyGrad.addColorStop(1, '#0C242B');
+          }
+          ctx.fillStyle = skyGrad;
           ctx.fillRect(0, 0, w, h);
 
-          // Layered water depth stripes
-          ctx.fillStyle = waterSpot === 'RIVER' ? '#173A4A' : '#14333C';
-          ctx.fillRect(0, 14, w, h - 14);
-          ctx.fillStyle = waterSpot === 'RIVER' ? '#1E4C61' : '#19424E';
-          ctx.fillRect(0, 32, w, h - 42);
+          // Soft misty moonlight reflection on water surface
+          const shimmerGrad = ctx.createRadialGradient(w * 0.62, h * 0.25, 8, w * 0.62, h * 0.35, w * 0.42);
+          shimmerGrad.addColorStop(0, 'rgba(216, 232, 240, 0.18)');
+          shimmerGrad.addColorStop(0.5, 'rgba(110, 178, 206, 0.08)');
+          shimmerGrad.addColorStop(1, 'rgba(13, 28, 36, 0)');
+          ctx.fillStyle = shimmerGrad;
+          ctx.fillRect(0, 0, w, h);
 
-          // Animated pixel ripples
-          const t = now * 0.0025;
-          for (let i = 0; i < 8; i++) {
-            const rx = Math.round(((i * 38 + t * (waterSpot === 'RIVER' ? 28 : 10)) % (w + 30)) - 20);
-            const ry = 22 + ((i * 19) % Math.max(24, h - 34));
-            ctx.fillStyle = '#4D8FAC';
-            ctx.fillRect(rx, ry, 16, 2);
+          // Smooth flowing wave ribbons
+          const t = now * 0.0022;
+          for (let i = 0; i < 7; i++) {
+            const flowSpeed = waterSpot === 'RIVER' ? 32 : 10;
+            const rx = ((i * 76 + t * flowSpeed) % (w + 90)) - 60;
+            const ry = 26 + ((i * 15) % Math.max(28, h - 38));
+            const waveLen = 36 + (i % 3) * 14;
+            ctx.strokeStyle = i % 2 === 0 ? 'rgba(136, 204, 230, 0.32)' : 'rgba(94, 162, 192, 0.22)';
+            ctx.lineWidth = 1.6;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(rx, ry);
+            ctx.quadraticCurveTo(
+              rx + waveLen * 0.5,
+              ry + Math.sin(t + i) * 2.2,
+              rx + waveLen,
+              ry
+            );
+            ctx.stroke();
           }
 
-          // Shoreline reeds on left edge
-          ctx.fillStyle = '#2B5338';
-          ctx.fillRect(0, 0, 26, h);
-          ctx.fillStyle = '#447A54';
-          ctx.fillRect(14, 10, 4, 24);
-          ctx.fillRect(20, 20, 4, 26);
+          // Organic mossy riverbank & swaying cattail reeds on the left
+          const bankGrad = ctx.createLinearGradient(0, 0, 44, 0);
+          bankGrad.addColorStop(0, '#1A3322');
+          bankGrad.addColorStop(0.7, '#284C34');
+          bankGrad.addColorStop(1, 'rgba(28, 56, 38, 0)');
+          ctx.fillStyle = bankGrad;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(36, 0);
+          ctx.quadraticCurveTo(44, h * 0.45, 28, h);
+          ctx.lineTo(0, h);
+          ctx.closePath();
+          ctx.fill();
 
-          // Fishing line & bobber
+          const sway = Math.sin(now * 0.0025) * 3;
+          const reedSpecs = [
+            { bx: 10, topX: 16 + sway, topY: 16, hasCattail: true },
+            { bx: 18, topX: 25 + sway * 1.1, topY: 22, hasCattail: false },
+            { bx: 24, topX: 30 + sway * 0.9, topY: 32, hasCattail: true },
+          ];
+          reedSpecs.forEach((r) => {
+            ctx.strokeStyle = '#4C865A';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath();
+            ctx.moveTo(r.bx, h);
+            ctx.quadraticCurveTo(r.bx + 2, h * 0.55, r.topX, r.topY);
+            ctx.stroke();
+            if (r.hasCattail) {
+              ctx.fillStyle = '#5B3A24';
+              ctx.beginPath();
+              ctx.ellipse(r.topX, r.topY + 6, 2.6, 6, 0.12, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
+
+          // Curved fishing line & shaded round bobber
           if (phaseRef.current !== 'READY') {
             const bobOffset =
               phaseRef.current === 'BITING'
-                ? Math.sin(now * 0.03) * 4
-                : Math.sin(now * 0.005) * 1.5;
-            const bx = Math.round(w * 0.62);
-            const by = Math.round(h * 0.56 + bobOffset);
+                ? Math.sin(now * 0.032) * 4.5
+                : Math.sin(now * 0.0045) * 1.8;
+            const bx = w * 0.62;
+            const by = h * 0.58 + bobOffset;
 
-            ctx.strokeStyle = '#C7C2B6';
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'rgba(225, 222, 212, 0.78)';
+            ctx.lineWidth = 1.2;
             ctx.beginPath();
-            ctx.moveTo(22, 8);
-            ctx.lineTo(bx, by - 4);
+            ctx.moveTo(24, 6);
+            ctx.quadraticCurveTo(bx * 0.56, by * 0.78, bx, by - 5);
             ctx.stroke();
 
-            // Bobber pixel sprite
-            ctx.fillStyle = '#E5E5E5';
-            ctx.fillRect(bx - 4, by - 4, 8, 4);
-            ctx.fillStyle = '#D64541';
-            ctx.fillRect(bx - 4, by, 8, 5);
+            // Concentric smooth water ripple ellipses around bobber
+            const maxRing = phaseRef.current === 'BITING' ? 28 : 18;
+            for (let ring = 0; ring < 2; ring++) {
+              const phaseShift = ((now * (phaseRef.current === 'BITING' ? 0.045 : 0.016) + ring * 10) % maxRing);
+              const alpha = Math.max(0, 1 - phaseShift / maxRing) * (phaseRef.current === 'BITING' ? 0.85 : 0.45);
+              ctx.strokeStyle =
+                phaseRef.current === 'BITING'
+                  ? `rgba(255, 209, 102, ${alpha})`
+                  : `rgba(126, 196, 224, ${alpha})`;
+              ctx.lineWidth = 1.4;
+              ctx.beginPath();
+              ctx.ellipse(bx, by + 2, 7 + phaseShift, 3 + phaseShift * 0.34, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
 
-            // Ripple rings around bobber
-            const ringR =
-              phaseRef.current === 'BITING'
-                ? 8 + Math.round(((now * 0.04) % 14))
-                : 6 + Math.round(((now * 0.015) % 10));
-            ctx.strokeStyle =
-              phaseRef.current === 'BITING' ? '#FFD166' : 'rgba(126, 196, 224, 0.55)';
-            ctx.strokeRect(bx - ringR, by - 2, ringR * 2, 7);
+            // Shaded oval bobber
+            ctx.save();
+            ctx.beginPath();
+            ctx.ellipse(bx, by, 5.5, 6.5, 0, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.fillStyle = '#F2EFE9';
+            ctx.fillRect(bx - 7, by - 7, 14, 7);
+            ctx.fillStyle = '#D64541';
+            ctx.fillRect(bx - 7, by, 14, 8);
+            ctx.restore();
+
+            ctx.strokeStyle = '#1E1612';
+            ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.ellipse(bx, by, 5.5, 6.5, 0, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Specular dot
+            ctx.fillStyle = 'rgba(255,255,255,0.65)';
+            ctx.beginPath();
+            ctx.arc(bx - 1.8, by - 2.4, 1.4, 0, Math.PI * 2);
+            ctx.fill();
           }
         }
       }
@@ -267,9 +347,9 @@ export const FishingModal: React.FC<FishingModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Tutup Memancing"
-            className="min-h-[38px] min-w-[38px] rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
+            className="min-h-[44px] min-w-[44px] rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </header>
 
@@ -291,13 +371,13 @@ export const FishingModal: React.FC<FishingModalProps> = ({
             )}
           </div>
 
-          {/* Pixel Water Stage */}
-          <div className="relative rounded border border-[#2A3036] overflow-hidden bg-[#0D1C24]">
+          {/* HD 2D Illustrated Water Stage */}
+          <div className="relative rounded-lg border border-[#2A3036] overflow-hidden bg-[#0D1C24]">
             <canvas
               ref={waterCanvasRef}
               width={480}
               height={130}
-              className="w-full h-[126px] block pixelated"
+              className="w-full h-[126px] block illustrated-canvas"
             />
             {phase === 'BITING' && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -339,9 +419,9 @@ export const FishingModal: React.FC<FishingModalProps> = ({
 
           {/* Result Card */}
           {phase === 'RESULT' && caughtResult && (
-            <div className="p-3 rounded bg-[#112419]/75 border border-[#8FC79A]/60 flex items-center gap-3">
-              <div className="w-12 h-12 shrink-0 rounded bg-[#0D0F10] border border-[#3A4046] flex items-center justify-center">
-                <ItemPixelIcon itemId={caughtResult.itemId} size={34} />
+            <div className="p-3 rounded-lg bg-[#112419]/80 border border-[#8FC79A]/65 flex items-center gap-3.5">
+              <div className="w-16 h-16 shrink-0 rounded-lg bg-[#0D0F10] border border-[#3A4046] flex items-center justify-center">
+                <ItemPixelIcon itemId={caughtResult.itemId} size={48} />
               </div>
               <div className="min-w-0 flex-1">
                 <div
@@ -383,20 +463,20 @@ export const FishingModal: React.FC<FishingModalProps> = ({
           </div>
 
           {/* Action Controls */}
-          <div className="flex items-center justify-end gap-2 pt-1">
+          <div className="flex items-center justify-end gap-2.5 pt-1">
             {(phase === 'READY' || phase === 'RESULT' || phase === 'ESCAPED') && (
               <>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="min-h-[44px] px-4 py-2 rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-semibold text-[#E6E2D8] cursor-pointer whitespace-nowrap"
+                  className="min-h-[48px] px-5 py-2 rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-bold text-[#E6E2D8] cursor-pointer whitespace-nowrap"
                 >
                   Tutup
                 </button>
                 <button
                   type="button"
                   onClick={handleCast}
-                  className="min-h-[44px] px-5 py-2 rounded bg-[#264E63] hover:bg-[#31647E] border border-[#7EC4E0]/70 text-xs font-bold text-white flex items-center gap-2 cursor-pointer whitespace-nowrap"
+                  className="min-h-[48px] px-5 py-2 rounded-lg bg-[#264E63] hover:bg-[#31647E] border border-[#7EC4E0]/75 text-sm font-bold text-white flex items-center gap-2 cursor-pointer whitespace-nowrap"
                 >
                   <Anchor className="w-4 h-4 shrink-0" />
                   <span>{phase === 'READY' ? 'Lempar Kail' : 'Pancing Lagi'}</span>
@@ -412,7 +492,7 @@ export const FishingModal: React.FC<FishingModalProps> = ({
                   setPhase('READY');
                   setHintText('Kail ditarik kembali.');
                 }}
-                className="min-h-[44px] px-4 py-2 rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-semibold text-[#E6E2D8] cursor-pointer whitespace-nowrap"
+                className="min-h-[48px] px-5 py-2 rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-bold text-[#E6E2D8] cursor-pointer whitespace-nowrap"
               >
                 Tarik Kail
               </button>
@@ -422,7 +502,7 @@ export const FishingModal: React.FC<FishingModalProps> = ({
               <button
                 type="button"
                 onClick={handleBiteStrike}
-                className="w-full min-h-[48px] px-5 py-2 rounded bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] text-sm font-bold cursor-pointer animate-pulse"
+                className="w-full min-h-[54px] px-5 py-2.5 rounded-xl bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] text-base font-bold cursor-pointer animate-pulse"
               >
                 Tarik Sekarang!
               </button>
@@ -432,7 +512,7 @@ export const FishingModal: React.FC<FishingModalProps> = ({
               <button
                 type="button"
                 onClick={handleReelStrike}
-                className="w-full min-h-[48px] px-5 py-2 rounded bg-[#264D34] hover:bg-[#326343] border border-[#8FC79A] text-white text-sm font-bold cursor-pointer"
+                className="w-full min-h-[54px] px-5 py-2.5 rounded-xl bg-[#264D34] hover:bg-[#326343] border border-[#8FC79A] text-white text-base font-bold cursor-pointer"
               >
                 Sentak Kail!
               </button>

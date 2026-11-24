@@ -16,7 +16,7 @@ export const CreditsScreen: React.FC<CreditsScreenProps> = ({ onBack }) => {
             soundEngine.playClick();
             onBack();
           }}
-          className="min-h-[40px] px-3 py-1.5 rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-medium flex items-center gap-2 cursor-pointer"
+          className="min-h-[44px] px-4 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-semibold flex items-center gap-2 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali</span>
@@ -52,7 +52,7 @@ export const CreditsScreen: React.FC<CreditsScreenProps> = ({ onBack }) => {
             </div>
             <div>
               <div className="text-[#F5E6C4] font-semibold">Grafis & Audio</div>
-              <div>Pixel-Art Prosedural Kanvas 2D · Efek Suara Sintesis Web Audio</div>
+              <div>Ilustrasi HD 2D Dark Fantasy Kanvas · Efek Suara Sintesis Web Audio</div>
             </div>
           </div>
         </div>

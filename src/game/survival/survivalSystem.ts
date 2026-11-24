@@ -466,6 +466,10 @@ export function grantInventoryItem(
   player.inventory[itemId] = (player.inventory[itemId] ?? 0) + quantity;
   if (!player.newlyAcquiredItems) player.newlyAcquiredItems = {};
   player.newlyAcquiredItems[itemId] = true;
+  if (!player.itemAcquiredOrder) player.itemAcquiredOrder = {};
+  const nextSeq = (player.itemAcquiredSeq ?? 0) + 1;
+  player.itemAcquiredSeq = nextSeq;
+  player.itemAcquiredOrder[itemId] = nextSeq;
 }
 
 export function clearNewlyAcquiredItem(player: PlayerState, itemId: ItemId): void {
@@ -835,6 +839,8 @@ export function createInitialPlayer(classId: PlayerState['classId']): PlayerStat
     fishCaught: 0,
     inventory,
     newlyAcquiredItems: {},
+    itemAcquiredOrder: { beri: 1, ramuan_bara: 2 },
+    itemAcquiredSeq: 2,
     monstersDefeated: 0,
     animalsHunted: 0,
     resourcesGathered: 0,
@@ -925,6 +931,8 @@ export function normalizePlayerState(raw: PlayerState): PlayerState {
     kennelCapacity: typeof raw.kennelCapacity === 'number' ? raw.kennelCapacity : 6,
     inventory,
     newlyAcquiredItems: raw.newlyAcquiredItems ?? {},
+    itemAcquiredOrder: raw.itemAcquiredOrder ?? {},
+    itemAcquiredSeq: typeof raw.itemAcquiredSeq === 'number' ? raw.itemAcquiredSeq : 0,
   };
 
   recalculatePlayerStats(normalized);

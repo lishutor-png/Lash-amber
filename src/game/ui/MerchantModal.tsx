@@ -101,9 +101,9 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
               type="button"
               onClick={onClose}
               aria-label="Tutup Toko Pedagang"
-              className="min-h-[40px] min-w-[40px] rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
+              className="min-h-[44px] min-w-[44px] rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </header>
@@ -116,13 +116,13 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
                 soundEngine.playClick();
                 setTab('BUY');
               }}
-              className={`min-h-[40px] px-4 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 border cursor-pointer whitespace-nowrap ${
+              className={`min-h-[44px] px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border cursor-pointer whitespace-nowrap ${
                 tab === 'BUY'
                   ? 'bg-[#C89B3C] text-[#0D0F10] border-[#F5E6C4]'
                   : 'bg-[#1C2024] text-[#E6E2D8] border-[#3A4046]'
               }`}
             >
-              <ShoppingBag className="w-3.5 h-3.5" />
+              <ShoppingBag className="w-4 h-4" />
               <span>Beli Barang ({merchant.stock.length})</span>
             </button>
 
@@ -132,13 +132,13 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
                 soundEngine.playClick();
                 setTab('SELL');
               }}
-              className={`min-h-[40px] px-4 py-1.5 rounded text-xs font-bold flex items-center gap-1.5 border cursor-pointer whitespace-nowrap ${
+              className={`min-h-[44px] px-4 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border cursor-pointer whitespace-nowrap ${
                 tab === 'SELL'
                   ? 'bg-[#C89B3C] text-[#0D0F10] border-[#F5E6C4]'
                   : 'bg-[#1C2024] text-[#E6E2D8] border-[#3A4046]'
               }`}
             >
-              <Tag className="w-3.5 h-3.5" />
+              <Tag className="w-4 h-4" />
               <span>Jual dari Tas ({sellableItems.length})</span>
             </button>
           </div>
@@ -178,14 +178,14 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
                       key={entry.itemId}
                       className="p-3 rounded bg-[#0D0F10] border border-[#2A3036] flex flex-col justify-between gap-2.5"
                     >
-                      <div className="flex items-start gap-2.5">
+                      <div className="flex items-start gap-3">
                         <div
-                          className="w-10 h-10 shrink-0 rounded bg-[#14171A] border flex items-center justify-center"
+                          className="w-12 h-12 shrink-0 rounded-lg bg-[#14171A] border flex items-center justify-center"
                           style={{
                             borderColor: rarity !== 'COMMON' ? `${rarityColor}88` : '#252A2E',
                           }}
                         >
-                          <ItemPixelIcon itemId={entry.itemId} size={28} />
+                          <ItemPixelIcon itemId={entry.itemId} size={40} />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
@@ -228,7 +228,7 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
                             type="button"
                             disabled={!canBuy1}
                             onClick={() => handleBuy(entry.itemId, 1)}
-                            className="min-h-[40px] px-3 py-1 rounded bg-[#264D34] hover:bg-[#326343] disabled:bg-[#1C2024] disabled:text-[#5A626A] border border-[#8FC79A]/60 disabled:border-[#2A3036] text-xs font-bold text-white cursor-pointer disabled:cursor-not-allowed"
+                            className="min-h-[44px] px-3.5 py-1.5 rounded-lg bg-[#264D34] hover:bg-[#326343] disabled:bg-[#1C2024] disabled:text-[#5A626A] border border-[#8FC79A]/60 disabled:border-[#2A3036] text-xs font-bold text-white cursor-pointer disabled:cursor-not-allowed"
                           >
                             {entry.stock <= 0 ? 'Habis' : 'Beli x1'}
                           </button>
@@ -237,7 +237,7 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
                               type="button"
                               disabled={!canBuy5}
                               onClick={() => handleBuy(entry.itemId, 5)}
-                              className="min-h-[40px] px-2.5 py-1 rounded bg-[#1C2024] hover:bg-[#2A3036] disabled:opacity-40 border border-[#C89B3C]/60 text-xs font-bold text-[#E5B85A] cursor-pointer disabled:cursor-not-allowed"
+                              className="min-h-[44px] px-3 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#2A3036] disabled:opacity-40 border border-[#C89B3C]/60 text-xs font-bold text-[#E5B85A] cursor-pointer disabled:cursor-not-allowed"
                             >
                               x5
                             </button>
@@ -266,9 +266,9 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
                       key={id}
                       className="p-3 rounded bg-[#0D0F10] border border-[#2A3036] flex flex-col justify-between gap-2.5"
                     >
-                      <div className="flex items-start gap-2.5">
-                        <div className="w-10 h-10 shrink-0 rounded bg-[#14171A] border border-[#252A2E] flex items-center justify-center">
-                          <ItemPixelIcon itemId={id} size={28} />
+                      <div className="flex items-start gap-3">
+                        <div className="w-12 h-12 shrink-0 rounded-lg bg-[#14171A] border border-[#252A2E] flex items-center justify-center">
+                          <ItemPixelIcon itemId={id} size={40} />
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center justify-between gap-2">
@@ -298,7 +298,7 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
                           <button
                             type="button"
                             onClick={() => handleSell(id, 1)}
-                            className="min-h-[40px] px-3 py-1 rounded bg-[#3C3429] hover:bg-[#524637] border border-[#C89B3C]/60 text-xs font-bold text-[#F5E6C4] cursor-pointer"
+                            className="min-h-[44px] px-3.5 py-1.5 rounded-lg bg-[#3C3429] hover:bg-[#524637] border border-[#C89B3C]/60 text-xs font-bold text-[#F5E6C4] cursor-pointer"
                           >
                             Jual 1
                           </button>
@@ -306,7 +306,7 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handleSell(id, 5)}
-                              className="min-h-[40px] px-2.5 py-1 rounded bg-[#1C2024] hover:bg-[#2A3036] border border-[#3A4046] text-xs font-bold text-[#E5B85A] cursor-pointer"
+                              className="min-h-[44px] px-3 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#2A3036] border border-[#3A4046] text-xs font-bold text-[#E5B85A] cursor-pointer"
                             >
                               x5
                             </button>
@@ -315,7 +315,7 @@ export const MerchantModal: React.FC<MerchantModalProps> = ({
                             <button
                               type="button"
                               onClick={() => handleSell(id, qty)}
-                              className="min-h-[40px] px-2.5 py-1 rounded bg-[#1C2024] hover:bg-[#2A3036] border border-[#3A4046] text-xs font-semibold text-[#C7C2B6] cursor-pointer"
+                              className="min-h-[44px] px-3 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#2A3036] border border-[#3A4046] text-xs font-semibold text-[#C7C2B6] cursor-pointer"
                             >
                               Semua
                             </button>

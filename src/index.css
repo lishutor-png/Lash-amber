@@ -32,15 +32,14 @@
   font-variant-numeric: tabular-nums;
 }
 
-.pixelated {
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
+.illustrated-canvas {
+  image-rendering: auto;
 }
 
 /* Custom subtle scrollbar for modals */
 .ember-scroll::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 .ember-scroll::-webkit-scrollbar-track {
@@ -49,7 +48,7 @@
 
 .ember-scroll::-webkit-scrollbar-thumb {
   background: #3A4046;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 .ember-scroll::-webkit-scrollbar-thumb:hover {
@@ -59,7 +58,7 @@
 @keyframes ember-float {
   0%, 100% {
     transform: translateY(0px);
-    opacity: 0.7;
+    opacity: 0.78;
   }
   50% {
     transform: translateY(-6px);
@@ -67,12 +66,45 @@
   }
 }
 
+@keyframes ember-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 18px rgba(200, 90, 50, 0.35), 0 0 36px rgba(229, 184, 90, 0.14);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(255, 118, 56, 0.55), 0 0 54px rgba(229, 184, 90, 0.25);
+  }
+}
+
+@keyframes splash-spark {
+  0% {
+    transform: translateY(10px) scale(0.8);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-110px) scale(0.3);
+    opacity: 0;
+  }
+}
+
 .animate-ember-float {
   animation: ember-float 3.2s ease-in-out infinite;
 }
 
+.animate-ember-glow {
+  animation: ember-glow-pulse 2.8s ease-in-out infinite;
+}
+
+.animate-splash-spark {
+  animation: splash-spark 3.2s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-ember-float {
+  .animate-ember-float,
+  .animate-ember-glow,
+  .animate-splash-spark {
     animation: none;
   }
 }

@@ -40,7 +40,7 @@ export const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
             soundEngine.playClick();
             onBack();
           }}
-          className="min-h-[40px] px-3 py-1.5 rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-medium flex items-center gap-2 cursor-pointer"
+          className="min-h-[44px] px-4 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-semibold flex items-center gap-2 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali</span>
@@ -67,9 +67,9 @@ export const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
                 className="p-4 rounded bg-[#14171A] border border-[#2A3036] flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-4 min-w-0">
-                  <div className="w-16 h-16 shrink-0 rounded bg-[#0D0F10] border border-[#252A2E] flex items-center justify-center">
+                  <div className="w-[72px] h-[72px] shrink-0 rounded-lg bg-[#0D0F10] border border-[#252A2E] flex items-center justify-center">
                     {player ? (
-                      <CharacterPortrait classId={player.classId} size={48} />
+                      <CharacterPortrait classId={player.classId} size={58} />
                     ) : (
                       <span className="text-xs font-mono-num text-[#5A626A]">
                         #{slot.slotIndex}
@@ -123,7 +123,7 @@ export const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
                             await onDeleteSlot(slot.slotIndex);
                             setConfirmDeleteSlot(null);
                           }}
-                          className="min-h-[40px] px-3 py-1.5 rounded bg-[#9E2A2B] hover:bg-[#B83335] text-white text-xs font-semibold cursor-pointer"
+                          className="min-h-[46px] px-4 py-2 rounded-lg bg-[#9E2A2B] hover:bg-[#B83335] text-white text-xs font-bold cursor-pointer"
                         >
                           Ya, Hapus
                         </button>
@@ -133,7 +133,7 @@ export const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
                             soundEngine.playClick();
                             setConfirmDeleteSlot(null);
                           }}
-                          className="min-h-[40px] px-3 py-1.5 rounded bg-[#1C2024] border border-[#3A4046] text-xs cursor-pointer"
+                          className="min-h-[46px] px-4 py-2 rounded-lg bg-[#1C2024] border border-[#3A4046] text-xs font-semibold cursor-pointer"
                         >
                           Batal
                         </button>
@@ -146,9 +146,9 @@ export const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
                             soundEngine.playClick();
                             onLoadSlot(slot.slotIndex);
                           }}
-                          className="min-h-[42px] px-4 py-2 rounded bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                          className="min-h-[46px] px-5 py-2 rounded-lg bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                         >
-                          <Play className="w-3.5 h-3.5" />
+                          <Play className="w-4 h-4" />
                           <span>Muat</span>
                         </button>
                         <button
@@ -158,7 +158,7 @@ export const LoadGameScreen: React.FC<LoadGameScreenProps> = ({
                             setConfirmDeleteSlot(slot.slotIndex);
                           }}
                           aria-label={`Hapus Slot ${slot.slotIndex}`}
-                          className="min-h-[42px] min-w-[42px] rounded bg-[#1C2024] hover:bg-[#331B1C] border border-[#3A4046] hover:border-[#9E2A2B] text-[#9BA3AB] hover:text-[#E5989B] flex items-center justify-center cursor-pointer"
+                          className="min-h-[46px] min-w-[46px] rounded-lg bg-[#1C2024] hover:bg-[#331B1C] border border-[#3A4046] hover:border-[#9E2A2B] text-[#9BA3AB] hover:text-[#E5989B] flex items-center justify-center cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

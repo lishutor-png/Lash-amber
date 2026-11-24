@@ -10,7 +10,7 @@ export const VirtualJoystick: React.FC<VirtualJoystickProps> = ({ onVectorChange
   const [knobOffset, setKnobOffset] = useState({ x: 0, y: 0 });
   const [active, setActive] = useState(false);
 
-  const maxRadius = 38;
+  const maxRadius = 46;
 
   const updateFromClient = (clientX: number, clientY: number) => {
     const el = baseRef.current;
@@ -30,7 +30,7 @@ export const VirtualJoystick: React.FC<VirtualJoystickProps> = ({ onVectorChange
 
     setKnobOffset({ x: ox, y: oy });
 
-    if (dist < 6) {
+    if (dist < 7) {
       onVectorChange(0, 0);
     } else {
       onVectorChange(ox / maxRadius, oy / maxRadius);
@@ -68,36 +68,36 @@ export const VirtualJoystick: React.FC<VirtualJoystickProps> = ({ onVectorChange
       }}
       role="application"
       aria-label="Joystick pergerakan karakter"
-      className={`relative w-28 h-28 rounded-full border transition-colors touch-none select-none flex items-center justify-center ${
+      className={`relative w-36 h-36 rounded-full border-2 transition-colors touch-none select-none flex items-center justify-center shadow-xl ${
         active
-          ? 'bg-[#14171A]/75 border-[#C89B3C]/80'
-          : 'bg-[#14171A]/55 border-[#5A626A]/50'
+          ? 'bg-[#14171A]/85 border-[#E5B85A]/85 shadow-[#C89B3C]/20'
+          : 'bg-[#14171A]/65 border-[#5A626A]/65'
       }`}
     >
-      {/* Directional ticks */}
-      <div className="absolute inset-2 rounded-full border border-[#5A626A]/25 pointer-events-none" />
-      <span className="absolute top-1.5 text-[9px] text-[#7D858E] font-mono-num pointer-events-none">
+      {/* Directional ring & ticks */}
+      <div className="absolute inset-2.5 rounded-full border border-[#5A626A]/35 pointer-events-none" />
+      <span className="absolute top-2 text-[10px] text-[#9BA3AB] font-mono-num pointer-events-none">
         ▲
       </span>
-      <span className="absolute bottom-1.5 text-[9px] text-[#7D858E] font-mono-num pointer-events-none">
+      <span className="absolute bottom-2 text-[10px] text-[#9BA3AB] font-mono-num pointer-events-none">
         ▼
       </span>
-      <span className="absolute left-2 text-[9px] text-[#7D858E] font-mono-num pointer-events-none">
+      <span className="absolute left-2.5 text-[10px] text-[#9BA3AB] font-mono-num pointer-events-none">
         ◀
       </span>
-      <span className="absolute right-2 text-[9px] text-[#7D858E] font-mono-num pointer-events-none">
+      <span className="absolute right-2.5 text-[10px] text-[#9BA3AB] font-mono-num pointer-events-none">
         ▶
       </span>
 
-      {/* Movable thumbstick */}
+      {/* Movable thumbstick (56px) */}
       <div
         style={{
           transform: `translate3d(${knobOffset.x}px, ${knobOffset.y}px, 0)`,
         }}
-        className={`w-12 h-12 rounded-full border pointer-events-none transition-transform duration-75 ${
+        className={`w-14 h-14 rounded-full border-2 pointer-events-none transition-transform duration-75 shadow-lg ${
           active
-            ? 'bg-[#C89B3C] border-[#F5E6C4] shadow-lg shadow-[#C89B3C]/25'
-            : 'bg-[#3A4046] border-[#7D858E]'
+            ? 'bg-gradient-to-br from-[#E5B85A] to-[#C89B3C] border-[#FFF5D6] shadow-[#C89B3C]/35'
+            : 'bg-gradient-to-br from-[#485058] to-[#2C3137] border-[#8F969E]'
         }`}
       />
     </div>

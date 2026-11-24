@@ -29,6 +29,7 @@ import { GameScreen } from './game/ui/GameScreen';
 import { LoadGameScreen } from './game/ui/LoadGameScreen';
 import { MainMenu } from './game/ui/MainMenu';
 import { SettingsScreen } from './game/ui/SettingsScreen';
+import { SplashScreen } from './game/ui/SplashScreen';
 
 interface ActiveSession {
   key: number;
@@ -38,7 +39,7 @@ interface ActiveSession {
 }
 
 export default function App() {
-  const [screen, setScreen] = useState<ScreenRoute>('MAIN_MENU');
+  const [screen, setScreen] = useState<ScreenRoute>('SPLASH');
   const [settings, setSettings] = useState<GameSettings>(() => loadSettings());
   const [saveSlots, setSaveSlots] = useState<SaveSlotRecord[]>([]);
   const [recentSave, setRecentSave] = useState<SaveSlotRecord | null>(null);
@@ -140,6 +141,10 @@ export default function App() {
 
   return (
     <main className="w-screen h-[100dvh] overflow-hidden bg-[#0D0F10]">
+      {screen === 'SPLASH' && (
+        <SplashScreen onComplete={() => setScreen('MAIN_MENU')} />
+      )}
+
       {screen === 'MAIN_MENU' && (
         <MainMenu
           recentSave={recentSave}

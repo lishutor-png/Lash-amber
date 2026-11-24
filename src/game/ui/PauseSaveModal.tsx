@@ -36,9 +36,9 @@ export const PauseSaveModal: React.FC<PauseSaveModalProps> = ({
             type="button"
             onClick={onResume}
             aria-label="Lanjutkan Bermain"
-            className="min-h-[40px] min-w-[40px] rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
+            className="min-h-[44px] min-w-[44px] rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </header>
 
@@ -61,7 +61,7 @@ export const PauseSaveModal: React.FC<PauseSaveModalProps> = ({
                   key={slot.slotIndex}
                   type="button"
                   onClick={() => handleSave(slot.slotIndex)}
-                  className={`w-full min-h-[48px] px-3 py-2 rounded border text-left flex items-center justify-between gap-2 transition-colors cursor-pointer ${
+                  className={`w-full min-h-[54px] px-3.5 py-2.5 rounded-lg border text-left flex items-center justify-between gap-2 transition-colors cursor-pointer ${
                     isCurrent
                       ? 'bg-[#17281E]/70 border-[#C89B3C]/70 hover:bg-[#1E3527]'
                       : 'bg-[#0D0F10] border-[#2A3036] hover:border-[#5A626A]'
@@ -90,7 +90,7 @@ export const PauseSaveModal: React.FC<PauseSaveModalProps> = ({
             <button
               type="button"
               onClick={onResume}
-              className="min-h-[44px] px-4 py-2 rounded bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
+              className="min-h-[48px] px-4 py-2 rounded-lg bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Play className="w-4 h-4" />
               <span>Lanjut Main</span>
@@ -99,7 +99,7 @@ export const PauseSaveModal: React.FC<PauseSaveModalProps> = ({
             <button
               type="button"
               onClick={onQuitToMenu}
-              className="min-h-[44px] px-4 py-2 rounded bg-[#1C2024] hover:bg-[#2A3036] border border-[#3A4046] text-[#E6E2D8] text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
+              className="min-h-[48px] px-4 py-2 rounded-lg bg-[#1C2024] hover:bg-[#2A3036] border border-[#3A4046] text-[#E6E2D8] text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Home className="w-4 h-4" />
               <span>Menu Utama</span>

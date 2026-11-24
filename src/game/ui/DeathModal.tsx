@@ -64,12 +64,12 @@ export const DeathModal: React.FC<DeathModalProps> = ({
           </div>
         </div>
 
-        <div className="space-y-2 pt-1">
+        <div className="space-y-2.5 pt-1">
           {hasSavedSlot && (
             <button
               type="button"
               onClick={onLoadLastSave}
-              className="w-full min-h-[44px] px-4 py-2 rounded bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full min-h-[48px] px-4 py-2 rounded-lg bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] text-xs font-bold flex items-center justify-center gap-2 cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
               <span>Bangkit dari Simpanan Terakhir</span>
@@ -79,7 +79,7 @@ export const DeathModal: React.FC<DeathModalProps> = ({
           <button
             type="button"
             onClick={onNewGame}
-            className="w-full min-h-[44px] px-4 py-2 rounded bg-[#264D34] hover:bg-[#326343] text-white text-xs font-bold cursor-pointer"
+            className="w-full min-h-[48px] px-4 py-2 rounded-lg bg-[#264D34] hover:bg-[#326343] text-white text-xs font-bold cursor-pointer"
           >
             Mulai Penyintas Baru
           </button>
@@ -87,7 +87,7 @@ export const DeathModal: React.FC<DeathModalProps> = ({
           <button
             type="button"
             onClick={onMainMenu}
-            className="w-full min-h-[44px] px-4 py-2 rounded bg-[#1C2024] hover:bg-[#2A3036] border border-[#3A4046] text-[#E6E2D8] text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full min-h-[48px] px-4 py-2 rounded-lg bg-[#1C2024] hover:bg-[#2A3036] border border-[#3A4046] text-[#E6E2D8] text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
           >
             <Home className="w-4 h-4" />
             <span>Kembali ke Menu Utama</span>

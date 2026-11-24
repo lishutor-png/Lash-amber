@@ -1,9 +1,29 @@
-import { CombatState, ElementType, PlayerState } from '../core/types';
+import combatArenaBackdropUrl from '../../assets/images/combat_arena_backdrop_1795524125741.jpg';
+import { CHARACTER_CLASSES } from '../character/classes';
+import { CombatState, ElementType, PlayerState, WeaponVisualKind } from '../core/types';
 import {
-  drawAnimalPixelSprite,
-  drawCharacterPixelSprite,
-  drawMonsterPixelSprite,
-} from './pixelSprites';
+  drawIllustratedAnimal,
+  drawIllustratedCharacter,
+  drawIllustratedMonster,
+} from './illustratedSprites';
+
+let cachedArenaImage: HTMLImageElement | null = null;
+let arenaImageLoaded = false;
+
+function getArenaBackdropImage(): HTMLImageElement | null {
+  if (typeof Image === 'undefined') return null;
+  if (!cachedArenaImage) {
+    cachedArenaImage = new Image();
+    cachedArenaImage.onload = () => {
+      arenaImageLoaded = true;
+    };
+    cachedArenaImage.onerror = () => {
+      arenaImageLoaded = false;
+    };
+    cachedArenaImage.src = combatArenaBackdropUrl;
+  }
+  return arenaImageLoaded && cachedArenaImage.naturalWidth > 0 ? cachedArenaImage : null;
+}
 
 export interface CombatParticle {
   x: number;
@@ -40,6 +60,7 @@ export interface CombatVfxRunner {
     endX: number;
     endY: number;
     element: ElementType;
+    weaponVisual?: WeaponVisualKind;
     startedAt: number;
     durationMs: number;
   } | null;
@@ -48,6 +69,8 @@ export interface CombatVfxRunner {
     y: number;
     element: ElementType;
     heavy: boolean;
+    weaponVisual?: WeaponVisualKind;
+    target: 'ENEMY' | 'PLAYER';
     startedAt: number;
     durationMs: number;
   } | null;
@@ -69,21 +92,21 @@ export function createCombatVfxRunner(): CombatVfxRunner {
 export function getElementPalette(element: ElementType): string[] {
   switch (element) {
     case 'FIRE':
-      return ['#FF6B35', '#E53935', '#FFD166'];
+      return ['#FF7A3D', '#E53935', '#FFD166'];
     case 'ICE':
       return ['#7EC4E0', '#3B9ED8', '#E0F7FF'];
     case 'LIGHTNING':
       return ['#FFE066', '#FFF8C4', '#4ECDC4'];
     case 'NATURE':
-      return ['#4CAF50', '#8FC79A', '#C8E6C9'];
+      return ['#56C271', '#8FC79A', '#D6F5DD'];
     case 'HOLY':
-      return ['#E5B85A', '#FFF1C2', '#C89B3C'];
+      return ['#E5B85A', '#FFF1C2', '#FFD166'];
     case 'DARK':
-      return ['#9D6CE0', '#5E35B1', '#1A1326'];
+      return ['#9D6CE0', '#5E35B1', '#E3C7FF'];
     case 'POISON':
       return ['#76C84D', '#43A047', '#C5E1A5'];
     default:
-      return ['#E6E2D8', '#C89B3C', '#9AA3AD'];
+      return ['#EAE4D7', '#C89B3C', '#9AA3AD'];
   }
 }
 
@@ -97,11 +120,16 @@ export function renderCombatStage(
   dt: number,
   nowMs: number
 ) {
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
 
   const playerAnchorX = Math.round(width * 0.27);
   const enemyAnchorX = Math.round(width * 0.73);
-  const groundY = Math.round(height * 0.76);
+  const groundY = Math.round(height * 0.77);
+  const playerWeapon =
+    player.equippedWeaponVisual ?? CHARACTER_CLASSES[player.classId].weaponVisual;
 
   if (combat.lastVfx && combat.lastVfx.id !== runner.lastHandledVfxId) {
     const vfx = combat.lastVfx;
@@ -125,18 +153,21 @@ export function renderCombatStage(
         y: targetY,
         element: vfx.element,
         heavy: vfx.kind === 'HEAVY_SLASH',
+        weaponVisual: vfx.target === 'ENEMY' ? playerWeapon : undefined,
+        target: vfx.target,
         startedAt: nowMs,
-        durationMs: vfx.kind === 'HEAVY_SLASH' ? 320 : 240,
+        durationMs: vfx.kind === 'HEAVY_SLASH' ? 340 : 250,
       };
     }
 
     if (vfx.kind === 'PROJECTILE') {
       runner.activeProjectile = {
-        startX: playerAnchorX + 20,
+        startX: playerAnchorX + 24,
         startY: groundY - 52,
-        endX: enemyAnchorX,
-        endY: groundY - 48,
+        endX: enemyAnchorX - 10,
+        endY: groundY - 46,
         element: vfx.element,
+        weaponVisual: playerWeapon,
         startedAt: nowMs,
         durationMs: 260,
       };
@@ -145,16 +176,16 @@ export function renderCombatStage(
     const count =
       vfx.kind === 'HEAVY_SLASH' || vfx.kind === 'PROJECTILE' || vfx.kind === 'TAME_ATTEMPT'
         ? 22
-        : 12;
+        : 14;
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 * i) / count + Math.random() * 0.4;
-      const speed = 35 + Math.random() * 95;
+      const speed = 38 + Math.random() * 100;
       runner.particles.push({
-        x: targetX + (Math.random() * 14 - 7),
-        y: targetY + (Math.random() * 14 - 7),
+        x: targetX + (Math.random() * 16 - 8),
+        y: targetY + (Math.random() * 16 - 8),
         vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 20,
-        size: Math.random() > 0.4 ? 4 : 3,
+        vy: Math.sin(angle) * speed - 22,
+        size: 2.2 + Math.random() * 2.5,
         color: palette[i % palette.length],
         life: 0.45 + Math.random() * 0.25,
         maxLife: 0.7,
@@ -164,7 +195,7 @@ export function renderCombatStage(
     if (vfx.damageText) {
       runner.floatingNumbers.push({
         x: targetX,
-        y: targetY - 26,
+        y: targetY - 28,
         text: vfx.damageText,
         subText: vfx.subText,
         color:
@@ -192,48 +223,83 @@ export function renderCombatStage(
   if (runner.shakeRemaining > 0) {
     runner.shakeRemaining = Math.max(0, runner.shakeRemaining - dt);
     const decay = runner.shakeRemaining / 0.24;
-    shakeX = Math.round((Math.random() * 2 - 1) * runner.shakeStrength * decay);
-    shakeY = Math.round((Math.random() * 2 - 1) * runner.shakeStrength * decay);
+    shakeX = (Math.random() * 2 - 1) * runner.shakeStrength * decay;
+    shakeY = (Math.random() * 2 - 1) * runner.shakeStrength * decay;
   }
 
   ctx.save();
   ctx.translate(shakeX, shakeY);
 
-  // Dark Fantasy Forest Ruins Backdrop
-  ctx.fillStyle = '#0D1311';
-  ctx.fillRect(-12, -12, width + 24, height + 24);
+  // 1. Illustrated Dark Fantasy Forest Ruins Backdrop
+  const arenaImg = getArenaBackdropImage();
+  if (arenaImg) {
+    const scale = Math.max((width + 24) / arenaImg.naturalWidth, (height + 24) / arenaImg.naturalHeight);
+    const dw = arenaImg.naturalWidth * scale;
+    const dh = arenaImg.naturalHeight * scale;
+    ctx.drawImage(arenaImg, (width - dw) / 2, (height - dh) / 2, dw, dh);
+    // Atmospheric foreground vignette for high combat readability
+    const vignette = ctx.createLinearGradient(0, 0, 0, height);
+    vignette.addColorStop(0, 'rgba(9, 12, 11, 0.35)');
+    vignette.addColorStop(0.65, 'rgba(9, 12, 11, 0.18)');
+    vignette.addColorStop(1, 'rgba(7, 9, 10, 0.65)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(-12, -12, width + 24, height + 24);
+  } else {
+    const skyGrad = ctx.createLinearGradient(0, 0, 0, height);
+    skyGrad.addColorStop(0, '#0C1412');
+    skyGrad.addColorStop(0.68, '#172820');
+    skyGrad.addColorStop(1, '#101814');
+    ctx.fillStyle = skyGrad;
+    ctx.fillRect(-12, -12, width + 24, height + 24);
 
-  ctx.fillStyle = '#14221B';
-  for (let i = 0; i < 9; i++) {
-    const tx = Math.round((width / 8) * i);
-    ctx.fillRect(tx - 10, 14, 20, groundY - 14);
+    // Painted ruin pillars silhouette
+    ctx.fillStyle = '#20282C';
+    ctx.beginPath();
+    ctx.roundRect(width * 0.42, 18, 22, groundY - 14, 4);
+    ctx.roundRect(width * 0.54, 34, 18, groundY - 30, 4);
+    ctx.fill();
+
+    // Mossy stone ground platform
+    const gGrad = ctx.createLinearGradient(0, groundY - 10, 0, height + 12);
+    gGrad.addColorStop(0, '#233A2A');
+    gGrad.addColorStop(1, '#0F1812');
+    ctx.fillStyle = gGrad;
+    ctx.fillRect(-12, groundY - 8, width + 24, height - groundY + 20);
   }
-  ctx.fillStyle = '#252B30';
-  ctx.fillRect(Math.round(width * 0.44), 24, 18, groundY - 24);
-  ctx.fillRect(Math.round(width * 0.52), 40, 14, groundY - 40);
 
-  ctx.fillStyle = '#182A1F';
-  ctx.fillRect(-12, groundY - 6, width + 24, height - groundY + 18);
-  ctx.fillStyle = '#243B2C';
-  ctx.fillRect(-12, groundY - 6, width + 24, 4);
-
-  for (let i = 0; i < 12; i++) {
-    const fx = Math.round(((Math.sin(nowMs * 0.0005 + i * 3.1) * 0.5 + 0.5) * width));
-    const fy = Math.round(((nowMs * 0.02 + i * 47) % height) * -1 + height);
-    ctx.fillStyle = i % 3 === 0 ? 'rgba(126,196,224,0.35)' : 'rgba(229,184,90,0.45)';
-    ctx.fillRect(fx, fy, 2, 2);
+  // Soft stage contact pedestal glow beneath combatants
+  for (const ax of [playerAnchorX, enemyAnchorX]) {
+    const ped = ctx.createRadialGradient(ax, groundY + 2, 4, ax, groundY + 2, 54);
+    ped.addColorStop(0, 'rgba(229, 184, 90, 0.14)');
+    ped.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = ped;
+    ctx.beginPath();
+    ctx.ellipse(ax, groundY + 2, 54, 15, 0, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  const spriteScale = 2;
+  // Floating atmospheric embers
+  for (let i = 0; i < 14; i++) {
+    const fx = (Math.sin(nowMs * 0.0005 + i * 3.1) * 0.5 + 0.5) * width;
+    const fy = (((nowMs * 0.02 + i * 47) % height) * -1) + height;
+    ctx.fillStyle = i % 3 === 0 ? 'rgba(126,196,224,0.4)' : 'rgba(255,198,107,0.5)';
+    ctx.beginPath();
+    ctx.arc(fx, fy, i % 2 === 0 ? 1.8 : 1.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 2. Combatants
+  const spriteScale = Math.max(1.75, Math.min(2.35, height / 118));
   const spriteSize = 48 * spriteScale;
 
   const pElapsed = (nowMs - combat.playerAnim.startedAt) / 420;
-  const pAnim = pElapsed > 1 && combat.playerAnim.state !== 'DEATH'
-    ? 'IDLE'
-    : combat.playerAnim.state;
+  const pAnim =
+    pElapsed > 1 && combat.playerAnim.state !== 'DEATH'
+      ? 'IDLE'
+      : combat.playerAnim.state;
   const pFlash = Date.now() - combat.lastPlayerHitFlash < 180;
 
-  drawCharacterPixelSprite(
+  drawIllustratedCharacter(
     ctx,
     player.classId,
     playerAnchorX - spriteSize / 2,
@@ -243,7 +309,7 @@ export function renderCombatStage(
       facing: 'right',
       animState: combat.turn === 'DEFEAT' ? 'DEATH' : pAnim,
       animProgress: Math.min(1, pElapsed),
-      weaponVisual: player.equippedWeaponVisual,
+      weaponVisual: playerWeapon,
       armorVisual: player.equippedArmorVisual,
       offhandVisual: player.equippedOffhandVisual ?? 'NONE',
       helmetVisual: player.equippedHelmetVisual ?? 'NONE',
@@ -253,13 +319,13 @@ export function renderCombatStage(
   );
 
   if (player.companion && player.companion.active && combat.turn !== 'DEFEAT') {
-    const compScale = 1.45;
+    const compScale = spriteScale * 0.72;
     const compSize = 48 * compScale;
-    drawAnimalPixelSprite(
+    drawIllustratedAnimal(
       ctx,
       player.companion.species,
-      playerAnchorX - spriteSize / 2 - 44,
-      groundY - compSize + 12,
+      playerAnchorX - spriteSize / 2 - 42,
+      groundY - compSize + 10,
       compScale,
       {
         facing: 'right',
@@ -271,12 +337,13 @@ export function renderCombatStage(
   }
 
   const eElapsed = (nowMs - combat.enemyAnim.startedAt) / 420;
-  const eAnim = eElapsed > 1 && combat.enemyAnim.state !== 'DEATH'
-    ? 'IDLE'
-    : combat.enemyAnim.state;
+  const eAnim =
+    eElapsed > 1 && combat.enemyAnim.state !== 'DEATH'
+      ? 'IDLE'
+      : combat.enemyAnim.state;
   const eFlash = Date.now() - combat.lastEnemyHitFlash < 180;
 
-  drawMonsterPixelSprite(
+  drawIllustratedMonster(
     ctx,
     combat.enemy.type,
     enemyAnchorX - spriteSize / 2,
@@ -293,7 +360,7 @@ export function renderCombatStage(
     }
   );
 
-  // 4. Slash Arc Trail VFX
+  // 3. Weapon-tailored Slash & Shockwave VFX
   if (runner.activeSlash) {
     const s = runner.activeSlash;
     const prog = (nowMs - s.startedAt) / s.durationMs;
@@ -303,72 +370,128 @@ export function renderCombatStage(
       const palette = getElementPalette(s.element);
       ctx.save();
       ctx.globalAlpha = 1 - prog;
-      ctx.strokeStyle = palette[0];
-      ctx.lineWidth = s.heavy ? 6 : 4;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.heavy ? 36 : 26, -Math.PI * 0.7, Math.PI * 0.35);
-      ctx.stroke();
 
-      ctx.strokeStyle = palette[1];
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(s.x + 3, s.y + 2, s.heavy ? 30 : 20, -Math.PI * 0.55, Math.PI * 0.25);
-      ctx.stroke();
+      if (s.weaponVisual === 'HAMMER' && s.heavy) {
+        // Golden heavy shockwave ring on impact
+        ctx.strokeStyle = palette[0];
+        ctx.lineWidth = 5 * (1 - prog * 0.6);
+        ctx.beginPath();
+        ctx.ellipse(s.x, s.y + 24, 18 + prog * 42, 8 + prog * 14, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (s.weaponVisual === 'SPEAR') {
+        // Piercing thrust streak
+        ctx.strokeStyle = palette[0];
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(s.x - 42, s.y + 10);
+        ctx.lineTo(s.x + 28, s.y - 12);
+        ctx.stroke();
+      } else if (s.weaponVisual === 'DAGGERS' || s.weaponVisual === 'KNIFE' || s.weaponVisual === 'SICKLE') {
+        // Dual cross-slash arcs
+        ctx.strokeStyle = palette[0];
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.moveTo(s.x - 24, s.y - 22);
+        ctx.quadraticCurveTo(s.x + 4, s.y, s.x + 26, s.y + 22);
+        ctx.moveTo(s.x + 24, s.y - 20);
+        ctx.quadraticCurveTo(s.x - 2, s.y, s.x - 26, s.y + 22);
+        ctx.stroke();
+      } else {
+        // Sweeping sword/weapon crescent arc
+        const grad = ctx.createLinearGradient(s.x - 36, s.y - 36, s.x + 36, s.y + 36);
+        grad.addColorStop(0, palette[2]);
+        grad.addColorStop(0.5, palette[0]);
+        grad.addColorStop(1, palette[1]);
+        ctx.strokeStyle = grad;
+        ctx.lineWidth = s.heavy ? 7 : 4.5;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.heavy ? 38 : 28, -Math.PI * 0.72, Math.PI * 0.36);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.arc(s.x + 2, s.y + 1, s.heavy ? 32 : 22, -Math.PI * 0.55, Math.PI * 0.24);
+        ctx.stroke();
+      }
       ctx.restore();
     }
   }
 
-  // 5. Magic Projectile VFX
+  // 4. Arrow & Elemental Spell Projectiles
   if (runner.activeProjectile) {
     const proj = runner.activeProjectile;
     const prog = (nowMs - proj.startedAt) / proj.durationMs;
     if (prog >= 1) {
       runner.activeProjectile = null;
     } else {
-      const px = Math.round(proj.startX + (proj.endX - proj.startX) * prog);
-      const py = Math.round(
-        proj.startY + (proj.endY - proj.startY) * prog - Math.sin(prog * Math.PI) * 18
-      );
+      const px = proj.startX + (proj.endX - proj.startX) * prog;
+      const py =
+        proj.startY + (proj.endY - proj.startY) * prog - Math.sin(prog * Math.PI) * 18;
       const palette = getElementPalette(proj.element);
 
       if (proj.element === 'LIGHTNING') {
         ctx.strokeStyle = palette[0];
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 3.5;
         ctx.beginPath();
         ctx.moveTo(proj.startX, proj.startY);
-        ctx.lineTo((proj.startX + proj.endX) / 2, proj.startY - 16);
+        ctx.lineTo((proj.startX + proj.endX) * 0.45, proj.startY - 18);
+        ctx.lineTo((proj.startX + proj.endX) * 0.65, proj.endY - 4);
         ctx.lineTo(proj.endX, proj.endY);
         ctx.stroke();
+      } else if (proj.weaponVisual === 'BOW' && proj.element === 'PHYSICAL') {
+        // Feathered arrow projectile
+        ctx.save();
+        ctx.translate(px, py);
+        ctx.strokeStyle = '#F5EFE4';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(-14, 0);
+        ctx.lineTo(10, 0);
+        ctx.stroke();
+        ctx.fillStyle = '#E5B85A';
+        ctx.beginPath();
+        ctx.moveTo(14, 0);
+        ctx.lineTo(7, -3.5);
+        ctx.lineTo(7, 3.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
       } else {
-        ctx.fillStyle = palette[0];
-        ctx.fillRect(px - 6, py - 6, 12, 12);
-        ctx.fillStyle = palette[2];
-        ctx.fillRect(px - 3, py - 3, 6, 6);
-        // Trail
-        ctx.fillStyle = palette[1];
-        ctx.fillRect(px - 14, py - 2, 6, 4);
+        // Glowing radial orb + comet trail
+        const orb = ctx.createRadialGradient(px, py, 1, px, py, 12);
+        orb.addColorStop(0, '#FFFFFF');
+        orb.addColorStop(0.35, palette[2]);
+        orb.addColorStop(0.75, palette[0]);
+        orb.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = orb;
+        ctx.beginPath();
+        ctx.arc(px, py, 12, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
   }
 
-  // 6. Update & Draw Particles
+  // 5. Smooth Circular Particles
   const aliveParticles: CombatParticle[] = [];
   for (const pt of runner.particles) {
     pt.life -= effDt;
     if (pt.life <= 0) continue;
     pt.x += pt.vx * effDt;
     pt.y += pt.vy * effDt;
-    pt.vy += 120 * effDt; // subtle gravity
+    pt.vy += 120 * effDt;
     aliveParticles.push(pt);
 
     ctx.globalAlpha = Math.max(0, pt.life / pt.maxLife);
     ctx.fillStyle = pt.color;
-    ctx.fillRect(Math.round(pt.x), Math.round(pt.y), pt.size, pt.size);
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
+    ctx.fill();
   }
   ctx.globalAlpha = 1;
   runner.particles = aliveParticles;
 
-  // 7. Floating Damage & Critical Numbers
+  // 6. Floating Damage & Critical Numbers
   const aliveNumbers: CombatFloatingNumber[] = [];
   ctx.textAlign = 'center';
   for (const fn of runner.floatingNumbers) {
@@ -382,17 +505,17 @@ export function renderCombatStage(
     ctx.globalAlpha = Math.min(1, fn.life * 2);
 
     ctx.font = fn.isCritical
-      ? 'bold 18px "JetBrains Mono", monospace'
+      ? 'bold 19px "JetBrains Mono", monospace'
       : 'bold 15px "JetBrains Mono", monospace';
     ctx.fillStyle = '#090B0C';
-    ctx.fillText(fn.text, drawX + 1, drawY + 1);
+    ctx.fillText(fn.text, drawX + 1.5, drawY + 1.5);
     ctx.fillStyle = fn.color;
     ctx.fillText(fn.text, drawX, drawY);
 
     if (fn.subText) {
       ctx.font = 'bold 10px "Plus Jakarta Sans", sans-serif';
       ctx.fillStyle = '#FFD166';
-      ctx.fillText(fn.subText, drawX, drawY - 16);
+      ctx.fillText(fn.subText, drawX, drawY - 17);
     }
   }
   ctx.globalAlpha = 1;

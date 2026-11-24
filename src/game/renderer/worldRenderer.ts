@@ -23,11 +23,11 @@ import {
   isWorldPointVisible,
 } from '../world/worldGenerator';
 import {
-  drawAnimalPixelSprite,
-  drawCharacterPixelSprite,
-  drawMerchantNpcSprite,
-  drawMonsterPixelSprite,
-} from './pixelSprites';
+  drawIllustratedAnimal,
+  drawIllustratedCharacter,
+  drawIllustratedMerchant,
+  drawIllustratedMonster,
+} from './illustratedSprites';
 
 export const CAMERA_ZOOM_SCALES: Record<CameraZoomLevel, number> = {
   VERY_CLOSE: 2.55,
@@ -209,25 +209,54 @@ export function renderWorld({
     }
     const mx = merch.x - camX;
     const my = merch.y - camY;
-    // Wooden stall canopy behind merchant
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    // Wooden stall canopy behind merchant with warm hanging lantern glow
+    ctx.fillStyle = 'rgba(0,0,0,0.34)';
     ctx.beginPath();
-    ctx.ellipse(mx, my + 8, 22, 9, 0, 0, Math.PI * 2);
+    ctx.ellipse(mx, my + 8, 23, 9.5, 0, 0, Math.PI * 2);
     ctx.fill();
 
+    // Wooden support beams
     ctx.fillStyle = '#4B3322';
-    ctx.fillRect(mx - 18, my - 26, 36, 10);
-    ctx.fillStyle =
+    ctx.beginPath();
+    ctx.roundRect(mx - 19, my - 26, 4, 24, 1.5);
+    ctx.roundRect(mx + 15, my - 26, 4, 24, 1.5);
+    ctx.roundRect(mx - 18, my - 25, 36, 9, 2);
+    ctx.fill();
+
+    // Curved fabric awning + scalloped gold trim
+    const awningCol =
       merch.kind === 'ALCHEMIST'
-        ? '#2E7D52'
+        ? '#2B7A50'
         : merch.kind === 'BLACKSMITH'
-        ? '#5A626A'
+        ? '#58626B'
         : merch.kind === 'RARE_TRADER'
-        ? '#6B3FA0'
+        ? '#6D3FA6'
         : '#B54A35';
-    ctx.fillRect(mx - 20, my - 30, 40, 6);
-    ctx.fillStyle = '#E5B85A';
-    ctx.fillRect(mx - 18, my - 25, 36, 2);
+    ctx.fillStyle = awningCol;
+    ctx.beginPath();
+    ctx.moveTo(mx - 22, my - 24);
+    ctx.quadraticCurveTo(mx, my - 35, mx + 22, my - 24);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#0D0F12';
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+
+    ctx.strokeStyle = '#E5B85A';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(mx - 20, my - 24);
+    ctx.lineTo(mx + 20, my - 24);
+    ctx.stroke();
+
+    // Warm swinging lantern glow
+    const lanternGlow = ctx.createRadialGradient(mx + 16, my - 19, 1, mx + 16, my - 19, 13);
+    lanternGlow.addColorStop(0, 'rgba(255, 224, 128, 0.72)');
+    lanternGlow.addColorStop(1, 'rgba(255, 180, 70, 0)');
+    ctx.fillStyle = lanternGlow;
+    ctx.beginPath();
+    ctx.arc(mx + 16, my - 19, 13, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   // 2. TARGETING HIGHLIGHT
@@ -260,24 +289,41 @@ export function renderWorld({
     );
   }
 
-  // 3. GROUND LOOT ITEMS
+  // 3. GROUND LOOT ITEMS (cinched leather pouch + rarity aura)
   for (const loot of region.groundLoot) {
     if (!isWorldPointVisible(player.x, player.y, loot.x, loot.y, visibilityRadiusPx)) {
       continue;
     }
     const lx = Math.round(loot.x - camX);
     const ly = Math.round(loot.y - camY);
-    const bob = Math.round(Math.sin(nowMs * 0.006 + loot.x) * 1.5);
+    const bob = Math.sin(nowMs * 0.006 + loot.x) * 1.6;
     const col = LOOT_RARITY_COLORS[loot.rarity];
+
+    const halo = ctx.createRadialGradient(lx, ly + bob, 1, lx, ly + bob, 10);
+    halo.addColorStop(0, `${col}55`);
+    halo.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(lx, ly + bob, 10, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.beginPath();
     ctx.ellipse(lx, ly + 6, 7, 3, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = '#6E5038';
-    ctx.fillRect(lx - 5, ly - 4 + bob, 10, 8);
+
+    ctx.fillStyle = '#735136';
+    ctx.strokeStyle = '#0D0F12';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.ellipse(lx, ly + 0.5 + bob, 5.5, 4.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
     ctx.fillStyle = col;
-    ctx.fillRect(lx - 3, ly - 6 + bob, 6, 3);
+    ctx.beginPath();
+    ctx.arc(lx, ly - 4 + bob, 2.5, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   // 4. Y-SORTED WORLD PROPS & ACTORS
@@ -343,7 +389,7 @@ export function renderWorld({
     } else if (actor.kind === 'MERCHANT') {
       const mx = Math.round(actor.merch.x - camX - 24);
       const my = Math.round(actor.merch.y - camY - 34);
-      drawMerchantNpcSprite(ctx, actor.merch.kind, mx, my, 1, nowMs);
+      drawIllustratedMerchant(ctx, actor.merch.kind, mx, my, 1, nowMs);
       ctx.fillStyle = '#FFD166';
       ctx.font = 'bold 8px sans-serif';
       ctx.textAlign = 'center';
@@ -351,33 +397,78 @@ export function renderWorld({
     } else if (actor.kind === 'PLAYER') {
       const px = Math.round(player.x - camX - 24);
       const py = Math.round(player.y - camY - 34);
-      drawCharacterPixelSprite(ctx, player.classId, px, py, 1, {
+      const isSwinging = Boolean(player.worldAttackUntil && nowMs < player.worldAttackUntil);
+      const swingStart = player.worldAttackStartedAt ?? nowMs - 100;
+      const swingDur = Math.max(180, (player.worldAttackUntil ?? nowMs) - swingStart);
+      const swingProg = isSwinging ? Math.max(0, Math.min(1, (nowMs - swingStart) / swingDur)) : 0;
+
+      drawIllustratedCharacter(ctx, player.classId, px, py, 1, {
         facing: player.facing,
         walkPhase: player.animTime * 11,
-        animState: player.isMoving ? 'WALK' : 'IDLE',
+        animState: isSwinging ? 'ATTACK' : player.isMoving ? 'WALK' : 'IDLE',
+        animProgress: swingProg,
         weaponVisual: player.equippedWeaponVisual,
         armorVisual: player.equippedArmorVisual,
         offhandVisual: player.equippedOffhandVisual ?? 'NONE',
         helmetVisual: player.equippedHelmetVisual ?? 'NONE',
         nowMs,
       });
+
+      // Sweeping world exploration weapon slash arc
+      if (isSwinging && swingProg < 0.95) {
+        const dirAngle =
+          player.facing === 'right'
+            ? 0
+            : player.facing === 'left'
+            ? Math.PI
+            : player.facing === 'down'
+            ? Math.PI * 0.5
+            : -Math.PI * 0.5;
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, 1 - swingProg);
+        ctx.strokeStyle = '#FFD166';
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.arc(
+          player.x - camX,
+          player.y - camY - 6,
+          20,
+          dirAngle - 0.85,
+          dirAngle + 0.85
+        );
+        ctx.stroke();
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(
+          player.x - camX,
+          player.y - camY - 6,
+          16,
+          dirAngle - 0.65,
+          dirAngle + 0.65
+        );
+        ctx.stroke();
+        ctx.restore();
+      }
     } else if (actor.kind === 'COMPANION' && player.companion) {
       const cx = Math.round(player.companion.x - camX - 20);
       const cy = Math.round(player.companion.y - camY - 30);
-      drawAnimalPixelSprite(ctx, player.companion.species, cx, cy, 0.85, {
+      drawIllustratedAnimal(ctx, player.companion.species, cx, cy, 0.85, {
         facing: player.companion.facing,
         walkPhase: nowMs * 0.01,
         isMoving: Math.hypot(player.x - player.companion.x, player.y - player.companion.y) > 36,
         nowMs,
       });
       ctx.fillStyle = '#FFD166';
-      ctx.fillRect(cx + 18, cy + 4, 4, 2);
+      ctx.beginPath();
+      ctx.arc(cx + 20, cy + 4, 2.2, 0, Math.PI * 2);
+      ctx.fill();
     } else if (actor.kind === 'WILDLIFE') {
       const w = actor.w;
       const wx = Math.round(w.x - camX - 20);
       const wy = Math.round(w.y - camY - 30);
       const isMoving = Math.hypot(w.vx, w.vy) > 4;
-      drawAnimalPixelSprite(ctx, w.species, wx, wy, 0.85, {
+      drawIllustratedAnimal(ctx, w.species, wx, wy, 0.85, {
         facing: w.facing,
         walkPhase: nowMs * 0.01 + w.aiTimer,
         isMoving,
@@ -389,22 +480,28 @@ export function renderWorld({
       if (w.hp < w.maxHp) {
         const ratio = w.hp / w.maxHp;
         ctx.fillStyle = 'rgba(13, 15, 16, 0.85)';
-        ctx.fillRect(wx + 8, wy + 2, 24, 4);
+        ctx.beginPath();
+        ctx.roundRect(wx + 8, wy + 2, 24, 4, 2);
+        ctx.fill();
         ctx.fillStyle =
           w.tameEligible && ratio <= 0.45
             ? '#8FC79A'
             : w.temperament === 'AGGRESSIVE'
             ? '#D94A38'
             : '#E5B85A';
-        ctx.fillRect(wx + 9, wy + 3, Math.round(22 * ratio), 2);
+        ctx.beginPath();
+        ctx.roundRect(wx + 9, wy + 3, Math.max(2, 22 * ratio), 2, 1);
+        ctx.fill();
       } else if (w.tameEligible) {
         ctx.fillStyle = w.species === 'SPIRIT_DEER' ? '#7EC4E0' : '#FFD166';
-        ctx.fillRect(wx + 18, wy + 1 + Math.round(Math.sin(nowMs * 0.006) * 2), 4, 4);
+        ctx.beginPath();
+        ctx.arc(wx + 20, wy + 2 + Math.sin(nowMs * 0.006) * 2, 2.2, 0, Math.PI * 2);
+        ctx.fill();
       }
     } else if (actor.kind === 'MONSTER') {
       const mx = Math.round(actor.m.x - camX - 24);
       const my = Math.round(actor.m.y - camY - 34);
-      drawMonsterPixelSprite(ctx, actor.m.type, mx, my, 1, {
+      drawIllustratedMonster(ctx, actor.m.type, mx, my, 1, {
         facing: actor.m.facing,
         walkPhase: nowMs * 0.005 + actor.m.patrolPhase,
         animState: 'WALK',
@@ -412,9 +509,13 @@ export function renderWorld({
       });
 
       ctx.fillStyle = 'rgba(13, 15, 16, 0.85)';
-      ctx.fillRect(mx + 10, my - 3, 28, 4);
+      ctx.beginPath();
+      ctx.roundRect(mx + 10, my - 3, 28, 4, 2);
+      ctx.fill();
       ctx.fillStyle = actor.m.type === 'DARK_CREATURE' ? '#9D6CE0' : '#B84A39';
-      ctx.fillRect(mx + 11, my - 2, Math.round(26 * (actor.m.hp / actor.m.maxHp)), 2);
+      ctx.beginPath();
+      ctx.roundRect(mx + 11, my - 2, Math.max(2, 26 * (actor.m.hp / actor.m.maxHp)), 2, 1);
+      ctx.fill();
     }
   }
 
@@ -649,9 +750,14 @@ function drawIllustratedGroundTile(
       ctx.stroke();
     } else {
       const wave = Math.sin(nowMs * 0.004 + tx * 0.9 + ty * 0.5) * 3;
-      ctx.fillStyle = 'rgba(185, 238, 255, 0.45)';
-      ctx.fillRect(sx + 8 + wave, sy + 11, 9, 1.8);
-      ctx.fillRect(sx + 13 - wave, sy + 21, 7, 1.4);
+      ctx.strokeStyle = 'rgba(185, 238, 255, 0.45)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(sx + 7 + wave, sy + 12);
+      ctx.quadraticCurveTo(sx + 12 + wave, sy + 10.5, sx + 17 + wave, sy + 12);
+      ctx.moveTo(sx + 12 - wave, sy + 21);
+      ctx.quadraticCurveTo(sx + 16 - wave, sy + 19.5, sx + 20 - wave, sy + 21);
+      ctx.stroke();
     }
     return;
   }
@@ -1090,10 +1196,16 @@ function drawIllustratedPlant(
       ctx.fill();
       break;
     case 'WILD_GRASS':
-      ctx.fillStyle = '#337547';
-      ctx.fillRect(sx + 9 + ox, sy + 15, 2.5, 10);
-      ctx.fillRect(sx + 15, sy + 11, 2.5, 14);
-      ctx.fillRect(sx + 20 - ox, sy + 14, 2.5, 11);
+      ctx.strokeStyle = '#38854F';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(sx + 11 + ox, sy + 24);
+      ctx.quadraticCurveTo(sx + 9 + ox, sy + 17, sx + 8 + ox, sy + 14);
+      ctx.moveTo(sx + 16, sy + 24);
+      ctx.quadraticCurveTo(sx + 15, sy + 16, sx + 17, sy + 10);
+      ctx.moveTo(sx + 21 - ox, sy + 24);
+      ctx.quadraticCurveTo(sx + 23 - ox, sy + 17, sx + 24 - ox, sy + 13);
+      ctx.stroke();
       break;
     case 'MEDICINAL_HERB':
       ctx.fillStyle = '#25693E';
@@ -1117,14 +1229,18 @@ function drawIllustratedPlant(
       break;
     case 'MUSHROOM':
       ctx.fillStyle = '#DCD6C8';
-      ctx.fillRect(sx + 14, sy + 17, 4, 7);
+      ctx.beginPath();
+      ctx.roundRect(sx + 14, sy + 17, 4, 7, 1.5);
+      ctx.fill();
       ctx.fillStyle = '#B84232';
       ctx.beginPath();
       ctx.ellipse(sx + 16, sy + 15, 6.5, 3.8, 0, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = '#FFF3D6';
-      ctx.fillRect(sx + 12, sy + 14, 2, 1.5);
-      ctx.fillRect(sx + 18, sy + 15, 2, 1.5);
+      ctx.beginPath();
+      ctx.arc(sx + 13, sy + 14.5, 1.1, 0, Math.PI * 2);
+      ctx.arc(sx + 19, sy + 15.2, 1.0, 0, Math.PI * 2);
+      ctx.fill();
       break;
     case 'SPECIAL_PLANT':
       ctx.fillStyle = '#1E4F5E';
@@ -1160,7 +1276,7 @@ export function renderMinimap(
   region: RegionData,
   visibilityRadiusPx: number
 ) {
-  ctx.imageSmoothingEnabled = false;
+  ctx.imageSmoothingEnabled = true;
   ctx.fillStyle = '#070809';
   ctx.fillRect(0, 0, width, height);
 
@@ -1211,14 +1327,16 @@ export function renderMinimap(
     }
   }
 
-  // Discovered Landmarks
+  // Discovered Landmarks (clean circular markers)
   const landmarks = world.discoveredLandmarksByRegion?.[region.key] ?? [];
   for (const lm of landmarks) {
-    const mx = Math.floor(lm.tileX * cellX);
-    const my = Math.floor(lm.tileY * cellY);
+    const mx = lm.tileX * cellX;
+    const my = lm.tileY * cellY;
     if (lm.kind === 'EXIT') {
       ctx.fillStyle = '#E5B85A';
-      ctx.fillRect(mx - 1, my - 1, 3, 3);
+      ctx.beginPath();
+      ctx.arc(mx, my, 2, 0, Math.PI * 2);
+      ctx.fill();
     } else if (
       lm.kind === 'MERCHANT' ||
       lm.kind === 'BLACKSMITH' ||
@@ -1227,39 +1345,51 @@ export function renderMinimap(
       lm.kind === 'TOWN'
     ) {
       ctx.fillStyle = '#FFD166';
-      ctx.fillRect(mx - 2, my - 2, 4, 4);
+      ctx.beginPath();
+      ctx.arc(mx, my, 2.4, 0, Math.PI * 2);
+      ctx.fill();
     } else if (lm.kind === 'DUNGEON' || lm.kind === 'CAVE' || lm.kind === 'BOSS') {
       ctx.fillStyle = '#D94A38';
-      ctx.fillRect(mx - 2, my - 2, 4, 4);
+      ctx.beginPath();
+      ctx.arc(mx, my, 2.4, 0, Math.PI * 2);
+      ctx.fill();
     } else if (lm.kind === 'GOLD_VEIN') {
       ctx.fillStyle = '#FFD166';
-      ctx.fillRect(mx - 1, my - 1, 2, 2);
+      ctx.beginPath();
+      ctx.arc(mx, my, 1.5, 0, Math.PI * 2);
+      ctx.fill();
     } else if (lm.kind === 'RUINS') {
       ctx.fillStyle = '#B0B8C2';
-      ctx.fillRect(mx, my, 2, 2);
+      ctx.beginPath();
+      ctx.arc(mx, my, 1.6, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
 
   for (const w of region.wildlife) {
     if (w.defeated || w.tamed) continue;
     if (!isWorldPointVisible(player.x, player.y, w.x, w.y, visibilityRadiusPx)) continue;
-    const mx = Math.floor((w.x / TILE_SIZE) * cellX);
-    const my = Math.floor((w.y / TILE_SIZE) * cellY);
+    const mx = (w.x / TILE_SIZE) * cellX;
+    const my = (w.y / TILE_SIZE) * cellY;
     ctx.fillStyle = w.tameEligible ? '#FFD166' : w.temperament === 'AGGRESSIVE' ? '#FF7B54' : '#9FD6B0';
-    ctx.fillRect(mx - 1, my - 1, 2, 2);
+    ctx.beginPath();
+    ctx.arc(mx, my, 1.4, 0, Math.PI * 2);
+    ctx.fill();
   }
 
   for (const m of region.monsters) {
     if (m.defeated) continue;
     if (!isWorldPointVisible(player.x, player.y, m.x, m.y, visibilityRadiusPx)) continue;
-    const mx = Math.floor((m.x / TILE_SIZE) * cellX);
-    const my = Math.floor((m.y / TILE_SIZE) * cellY);
+    const mx = (m.x / TILE_SIZE) * cellX;
+    const my = (m.y / TILE_SIZE) * cellY;
     ctx.fillStyle = m.type === 'DARK_CREATURE' ? '#9D6CE0' : '#D94A38';
-    ctx.fillRect(mx - 1, my - 1, 3, 3);
+    ctx.beginPath();
+    ctx.arc(mx, my, 1.9, 0, Math.PI * 2);
+    ctx.fill();
   }
 
-  const px = Math.floor((player.x / TILE_SIZE) * cellX);
-  const py = Math.floor((player.y / TILE_SIZE) * cellY);
+  const px = (player.x / TILE_SIZE) * cellX;
+  const py = (player.y / TILE_SIZE) * cellY;
   const vr = Math.round((visibilityRadiusPx / TILE_SIZE) * cellX);
   ctx.strokeStyle = 'rgba(245, 230, 196, 0.24)';
   ctx.lineWidth = 1;
@@ -1268,5 +1398,7 @@ export function renderMinimap(
   ctx.stroke();
 
   ctx.fillStyle = '#F5E6C4';
-  ctx.fillRect(px - 2, py - 2, 4, 4);
+  ctx.beginPath();
+  ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+  ctx.fill();
 }

@@ -58,7 +58,7 @@ export const CharacterSelectScreen: React.FC<CharacterSelectScreenProps> = ({
             soundEngine.playClick();
             onBack();
           }}
-          className="min-h-[40px] px-3 py-1.5 rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-medium flex items-center gap-2 cursor-pointer whitespace-nowrap"
+          className="min-h-[44px] px-4 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-semibold flex items-center gap-2 cursor-pointer whitespace-nowrap"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali</span>
@@ -93,8 +93,8 @@ export const CharacterSelectScreen: React.FC<CharacterSelectScreenProps> = ({
                     : 'bg-[#14171A] border-[#2A3036] hover:border-[#5A626A]'
                 }`}
               >
-                <div className="w-16 h-16 rounded bg-[#0D0F10] border border-[#252A2E] flex items-center justify-center">
-                  <CharacterPortrait classId={cls.id} size={48} />
+                <div className="w-[72px] h-[72px] rounded-lg bg-[#0D0F10] border border-[#252A2E] flex items-center justify-center">
+                  <CharacterPortrait classId={cls.id} size={58} />
                 </div>
                 <div className="w-full text-center">
                   <div className="text-sm font-semibold text-[#F5E6C4] truncate">
@@ -111,8 +111,8 @@ export const CharacterSelectScreen: React.FC<CharacterSelectScreenProps> = ({
         <div className="lg:col-span-5 bg-[#14171A] border border-[#2A3036] rounded p-4 flex flex-col justify-between gap-4">
           <div className="space-y-3.5">
             <div className="flex items-start gap-4">
-              <div className="w-20 h-20 shrink-0 rounded bg-[#0D0F10] border border-[#3A4046] flex items-center justify-center">
-                <CharacterPortrait classId={selectedClass.id} size={64} />
+              <div className="w-24 h-24 shrink-0 rounded-lg bg-[#0D0F10] border border-[#3A4046] flex items-center justify-center">
+                <CharacterPortrait classId={selectedClass.id} size={76} />
               </div>
               <div className="min-w-0">
                 <h2 className="font-display text-xl font-bold text-[#F5E6C4]">
@@ -211,15 +211,15 @@ export const CharacterSelectScreen: React.FC<CharacterSelectScreenProps> = ({
                     type="text"
                     value={seedInput}
                     onChange={(e) => setSeedInput(e.target.value)}
-                    className="w-full min-h-[38px] px-2.5 rounded bg-[#0D0F10] border border-[#3A4046] text-xs font-mono-num text-[#F5E6C4] focus:outline-none focus:border-[#C89B3C]"
+                    className="w-full min-h-[44px] px-3 rounded-lg bg-[#0D0F10] border border-[#3A4046] text-xs font-mono-num text-[#F5E6C4] focus:outline-none focus:border-[#C89B3C]"
                   />
                   <button
                     type="button"
                     onClick={regenerateSeed}
                     title="Acak Benih Dunia"
-                    className="min-h-[38px] min-w-[38px] rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
+                    className="min-h-[44px] min-w-[44px] rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
                   >
-                    <Dices className="w-4 h-4 text-[#C89B3C]" />
+                    <Dices className="w-5 h-5 text-[#C89B3C]" />
                   </button>
                 </div>
               </div>
@@ -240,7 +240,7 @@ export const CharacterSelectScreen: React.FC<CharacterSelectScreenProps> = ({
                           soundEngine.playClick();
                           setTargetSlot(slotNum);
                         }}
-                        className={`min-h-[38px] px-2 rounded border text-xs font-mono-num transition-colors cursor-pointer ${
+                        className={`min-h-[44px] px-2 rounded-lg border text-xs font-mono-num transition-colors cursor-pointer ${
                           active
                             ? 'bg-[#C89B3C] border-[#F5E6C4] text-[#0D0F10] font-semibold'
                             : 'bg-[#0D0F10] border-[#3A4046] text-[#B8B2A6] hover:border-[#7D858E]'
@@ -259,7 +259,7 @@ export const CharacterSelectScreen: React.FC<CharacterSelectScreenProps> = ({
           <button
             type="button"
             onClick={handleStart}
-            className="w-full min-h-[46px] px-5 py-2.5 rounded bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] font-bold text-sm tracking-wide transition-colors cursor-pointer"
+            className="w-full min-h-[52px] px-5 py-2.5 rounded-lg bg-[#C89B3C] hover:bg-[#E5B85A] text-[#0D0F10] font-bold text-sm tracking-wide transition-colors cursor-pointer shadow-lg"
           >
             Masuki Hutan Terlupakan
           </button>

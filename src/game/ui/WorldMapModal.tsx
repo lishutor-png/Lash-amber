@@ -206,7 +206,7 @@ export const WorldMapModal: React.FC<WorldMapModalProps> = ({
 
       const w = canvas.width;
       const h = canvas.height;
-      ctx.imageSmoothingEnabled = false;
+      ctx.imageSmoothingEnabled = true;
       ctx.fillStyle = '#070809';
       ctx.fillRect(0, 0, w, h);
 
@@ -466,9 +466,9 @@ export const WorldMapModal: React.FC<WorldMapModalProps> = ({
           <button
             type="button"
             onClick={() => setShowInfoPanel((v) => !v)}
-            className="min-h-[40px] px-3 py-1 rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-semibold text-[#E5B85A] flex items-center gap-1.5 cursor-pointer"
+            className="min-h-[44px] px-3.5 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-semibold text-[#E5B85A] flex items-center gap-1.5 cursor-pointer"
           >
-            <Info className="w-3.5 h-3.5" />
+            <Info className="w-4 h-4" />
             <span className="hidden sm:inline">{showInfoPanel ? 'Sembunyikan Info' : 'Info Wilayah'}</span>
           </button>
 
@@ -476,9 +476,9 @@ export const WorldMapModal: React.FC<WorldMapModalProps> = ({
             type="button"
             onClick={onClose}
             aria-label="Tutup Peta Dunia"
-            className="min-h-[40px] min-w-[40px] rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
+            className="min-h-[44px] min-w-[44px] rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] flex items-center justify-center cursor-pointer"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
       </header>
@@ -496,35 +496,35 @@ export const WorldMapModal: React.FC<WorldMapModalProps> = ({
               e.preventDefault();
               applyZoom(zoom + (e.deltaY < 0 ? 0.22 : -0.22));
             }}
-            className="w-full h-full block cursor-grab active:cursor-grabbing touch-none pixelated"
+            className="w-full h-full block cursor-grab active:cursor-grabbing touch-none illustrated-canvas"
           />
 
           {/* Zoom & Recenter Controls */}
-          <div className="absolute top-3 right-3 flex flex-col gap-1.5">
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
             <button
               type="button"
               onClick={() => applyZoom(zoom + 0.35)}
               aria-label="Perbesar Peta"
-              className="min-h-[40px] min-w-[40px] rounded bg-[#14171A]/92 hover:bg-[#22272B] border border-[#3A4046] flex items-center justify-center text-[#F5E6C4] cursor-pointer"
+              className="min-h-[46px] min-w-[46px] rounded-lg bg-[#14171A]/92 hover:bg-[#22272B] border border-[#3A4046] flex items-center justify-center text-[#F5E6C4] cursor-pointer"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
             </button>
             <button
               type="button"
               onClick={() => applyZoom(zoom - 0.35)}
               aria-label="Perkecil Peta"
-              className="min-h-[40px] min-w-[40px] rounded bg-[#14171A]/92 hover:bg-[#22272B] border border-[#3A4046] flex items-center justify-center text-[#F5E6C4] cursor-pointer"
+              className="min-h-[46px] min-w-[46px] rounded-lg bg-[#14171A]/92 hover:bg-[#22272B] border border-[#3A4046] flex items-center justify-center text-[#F5E6C4] cursor-pointer"
             >
-              <Minus className="w-4 h-4" />
+              <Minus className="w-5 h-5" />
             </button>
             <button
               type="button"
               onClick={() => centerOnPlayer()}
               aria-label="Pusatkan ke Posisi Penyintas"
               title="Pusatkan ke Posisi Saat Ini"
-              className="min-h-[40px] min-w-[40px] rounded bg-[#17281E]/92 hover:bg-[#264D34] border border-[#C89B3C]/70 flex items-center justify-center text-[#E5B85A] cursor-pointer"
+              className="min-h-[46px] min-w-[46px] rounded-lg bg-[#17281E]/92 hover:bg-[#264D34] border border-[#C89B3C]/70 flex items-center justify-center text-[#E5B85A] cursor-pointer"
             >
-              <Crosshair className="w-4 h-4" />
+              <Crosshair className="w-5 h-5" />
             </button>
           </div>
 

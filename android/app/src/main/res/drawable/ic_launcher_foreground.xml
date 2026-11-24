@@ -3,13 +3,53 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Deep Obsidian Crest Background -->
     <path
         android:fillColor="#0D0F10"
         android:pathData="M0,0h108v108h-108z" />
+    <!-- Outer Burnished Gold Shield Frame -->
     <path
-        android:fillColor="#C85A32"
-        android:pathData="M54,22c10,13 18,24 18,38a18,18 0 0,1 -36,0c0,-10 5,-18 11,-26 1,6 4,9 7,11 2,-7 0,-15 0,-23z" />
+        android:fillColor="#8A6822"
+        android:pathData="M54,13 L86,27 L82,66 C80,79 68,89 54,95 C40,89 28,79 26,66 L22,27 Z" />
     <path
-        android:fillColor="#F5E6C4"
-        android:pathData="M54,44c5,7 9,13 9,20a9,9 0 0,1 -18,0c0,-7 4,-13 9,-20z" />
+        android:fillColor="#16191D"
+        android:pathData="M54,17 L82,29.5 L78.5,64.5 C76.8,76 66.5,85 54,90.5 C41.5,85 31.2,76 29.5,64.5 L26,29.5 Z" />
+    <path
+        android:strokeColor="#E5B85A"
+        android:strokeWidth="1.4"
+        android:pathData="M54,17 L82,29.5 L78.5,64.5 C76.8,76 66.5,85 54,90.5 C41.5,85 31.2,76 29.5,64.5 L26,29.5 Z" />
+    <!-- Warm Ash & Ember Glow Base -->
+    <path
+        android:fillColor="#6E1D1B"
+        android:pathData="M34,68 C38,59 46,56 54,56 C62,56 70,59 74,68 C70,77 62,83 54,86 C46,83 38,77 34,68 Z" />
+    <!-- Ancient Sword Hilt & Blade -->
+    <path
+        android:fillColor="#C4CDD6"
+        android:pathData="M54,21 L57.5,28 L56.8,68 L51.2,68 L50.5,28 Z" />
+    <path
+        android:fillColor="#7D858E"
+        android:pathData="M54,21 L54,68 L51.2,68 L50.5,28 Z" />
+    <path
+        android:fillColor="#E5B85A"
+        android:pathData="M43,66 L65,66 L63.5,69.5 L44.5,69.5 Z" />
+    <path
+        android:fillColor="#583E2B"
+        android:pathData="M52.3,69.5 L55.7,69.5 L55.7,77 L52.3,77 Z" />
+    <path
+        android:fillColor="#C89B3C"
+        android:pathData="M54,77 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0" />
+    <!-- Molten Crimson & Flame Orange Ember Wrapping the Blade -->
+    <path
+        android:fillColor="#D94B27"
+        android:pathData="M54,32 C61,40 67,48 67,58 C67,67 61,74 54,76 C47,74 41,67 41,58 C41,50 45,44 50,39 C49,44 51,48 53.5,50 C52,44 53,38 54,32 Z" />
+    <path
+        android:fillColor="#FF8A3D"
+        android:pathData="M54,41 C59,47 62.5,53 62.5,60 C62.5,66.5 58.5,71 54,72.5 C49.5,71 45.5,66.5 45.5,60 C45.5,54 48.5,48.5 54,41 Z" />
+    <path
+        android:fillColor="#FFF1C2"
+        android:pathData="M54,51 C57,55 58.5,59 58.5,63 C58.5,66.8 56.5,69 54,70 C51.5,69 49.5,66.8 49.5,63 C49.5,59 51,55 54,51 Z" />
+    <!-- Floating Ember Sparks -->
+    <path
+        android:fillColor="#FFD166"
+        android:pathData="M43,43 a1.4,1.4 0 1,0 2.8,0 a1.4,1.4 0 1,0 -2.8,0 M63,39 a1.3,1.3 0 1,0 2.6,0 a1.3,1.3 0 1,0 -2.6,0 M46,31 a1,1 0 1,0 2,0 a1,1 0 1,0 -2,0" />
 </vector>

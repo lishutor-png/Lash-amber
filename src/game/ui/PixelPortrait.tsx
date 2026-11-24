@@ -10,11 +10,12 @@ import {
   WeaponVisualKind,
 } from '../core/types';
 import {
-  drawAnimalPixelSprite,
-  drawCharacterPixelSprite,
-  drawItemPixelIcon,
-  drawMonsterPixelSprite,
-} from '../renderer/pixelSprites';
+  drawIllustratedAnimal,
+  drawIllustratedCharacter,
+  drawIllustratedItem,
+  drawIllustratedMonster,
+} from '../renderer/illustratedSprites';
+import { getCachedOffscreenSprite } from '../renderer/spriteCache';
 
 interface CharacterPortraitProps {
   classId: CharacterClassId;
@@ -40,32 +41,44 @@ export const CharacterPortrait: React.FC<CharacterPortraitProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const targetW = Math.round(size * dpr);
+    const targetH = Math.round(size * dpr);
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.clearRect(0, 0, targetW, targetH);
 
-    const pixelScale = Math.max(1, canvas.width / 48);
-    const drawSize = 48 * pixelScale;
-    const offset = Math.floor((canvas.width - drawSize) / 2);
-    drawCharacterPixelSprite(ctx, classId, offset, offset, pixelScale, {
-      facing: 'down',
-      animState: 'IDLE',
-      weaponVisual,
-      armorVisual,
-      offhandVisual,
-      helmetVisual,
-      nowMs: 0,
+    const cacheKey = `char:${classId}:${targetW}:${weaponVisual ?? 'def'}:${armorVisual ?? 'def'}:${offhandVisual ?? 'def'}:${helmetVisual ?? 'def'}`;
+    const cached = getCachedOffscreenSprite(cacheKey, targetW, targetH, (octx, w) => {
+      const spriteScale = w / 48;
+      drawIllustratedCharacter(octx, classId, 0, 0, spriteScale, {
+        facing: 'down',
+        animState: 'IDLE',
+        weaponVisual,
+        armorVisual,
+        offhandVisual,
+        helmetVisual,
+        nowMs: 0,
+      });
     });
+
+    if (cached) {
+      ctx.drawImage(cached, 0, 0);
+    }
   }, [classId, size, weaponVisual, armorVisual, offhandVisual, helmetVisual]);
 
   return (
     <canvas
       ref={canvasRef}
-      width={size}
-      height={size}
-      className={`pixelated block ${className}`}
+      style={{ width: size, height: size }}
+      className={`illustrated-canvas block shrink-0 ${className}`}
       aria-hidden="true"
     />
   );
@@ -91,29 +104,40 @@ export const SkeletonPortrait: React.FC<SkeletonPortraitProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const targetW = Math.round(size * dpr);
+    const targetH = Math.round(size * dpr);
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.clearRect(0, 0, targetW, targetH);
 
-    const pixelScale = Math.max(1, canvas.width / 48);
-    const drawSize = 48 * pixelScale;
-    const offset = Math.floor((canvas.width - drawSize) / 2);
-    drawMonsterPixelSprite(ctx, enemyType, offset, offset, pixelScale, {
-      isGuarding,
-      isPrepared,
-      animState: 'IDLE',
-      nowMs: 0,
+    const cacheKey = `enemy:${enemyType}:${targetW}:${isGuarding ? 1 : 0}:${isPrepared ? 1 : 0}`;
+    const cached = getCachedOffscreenSprite(cacheKey, targetW, targetH, (octx, w) => {
+      drawIllustratedMonster(octx, enemyType, 0, 0, w / 48, {
+        isGuarding,
+        isPrepared,
+        animState: 'IDLE',
+        nowMs: 0,
+      });
     });
+
+    if (cached) {
+      ctx.drawImage(cached, 0, 0);
+    }
   }, [size, enemyType, isGuarding, isPrepared]);
 
   return (
     <canvas
       ref={canvasRef}
-      width={size}
-      height={size}
-      className={`pixelated block ${className}`}
+      style={{ width: size, height: size }}
+      className={`illustrated-canvas block shrink-0 ${className}`}
       aria-hidden="true"
     />
   );
@@ -135,28 +159,39 @@ export const AnimalPortrait: React.FC<AnimalPortraitProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const targetW = Math.round(size * dpr);
+    const targetH = Math.round(size * dpr);
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.clearRect(0, 0, targetW, targetH);
 
-    const pixelScale = Math.max(1, canvas.width / 48);
-    const drawSize = 48 * pixelScale;
-    const offset = Math.floor((canvas.width - drawSize) / 2);
-    drawAnimalPixelSprite(ctx, species, offset, offset, pixelScale, {
-      facing: 'right',
-      animState: 'IDLE',
-      nowMs: 0,
+    const cacheKey = `animal:${species}:${targetW}`;
+    const cached = getCachedOffscreenSprite(cacheKey, targetW, targetH, (octx, w) => {
+      drawIllustratedAnimal(octx, species, 0, 0, w / 48, {
+        facing: 'right',
+        animState: 'IDLE',
+        nowMs: 0,
+      });
     });
+
+    if (cached) {
+      ctx.drawImage(cached, 0, 0);
+    }
   }, [species, size]);
 
   return (
     <canvas
       ref={canvasRef}
-      width={size}
-      height={size}
-      className={`pixelated block ${className}`}
+      style={{ width: size, height: size }}
+      className={`illustrated-canvas block shrink-0 ${className}`}
       aria-hidden="true"
     />
   );
@@ -170,7 +205,7 @@ interface ItemIconProps {
 
 export const ItemPixelIcon: React.FC<ItemIconProps> = ({
   itemId,
-  size = 32,
+  size = 40,
   className = '',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -178,24 +213,38 @@ export const ItemPixelIcon: React.FC<ItemIconProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const targetW = Math.round(size * dpr);
+    const targetH = Math.round(size * dpr);
+    if (canvas.width !== targetW || canvas.height !== targetH) {
+      canvas.width = targetW;
+      canvas.height = targetH;
+    }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.clearRect(0, 0, targetW, targetH);
 
-    const pixelScale = Math.max(1, Math.floor(canvas.width / 16));
-    const offset = Math.floor((canvas.width - 16 * pixelScale) / 2);
-    drawItemPixelIcon(ctx, itemId, offset, offset, pixelScale);
+    const cacheKey = `item:${itemId}:${targetW}`;
+    const cached = getCachedOffscreenSprite(cacheKey, targetW, targetH, (octx, w) => {
+      drawIllustratedItem(octx, itemId, 0, 0, w);
+    });
+
+    if (cached) {
+      ctx.drawImage(cached, 0, 0);
+    }
   }, [itemId, size]);
 
   return (
     <canvas
       ref={canvasRef}
-      width={size}
-      height={size}
-      className={`pixelated block ${className}`}
+      style={{ width: size, height: size }}
+      className={`illustrated-canvas block shrink-0 ${className}`}
       aria-hidden="true"
     />
   );
 };
+
+export const ItemIllustration = ItemPixelIcon;

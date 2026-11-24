@@ -18,7 +18,7 @@ export const CollectionScreen: React.FC<CollectionScreenProps> = ({ onBack }) =>
             soundEngine.playClick();
             onBack();
           }}
-          className="min-h-[40px] px-3 py-1.5 rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-medium flex items-center gap-2 cursor-pointer"
+          className="min-h-[44px] px-4 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-semibold flex items-center gap-2 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali</span>
@@ -40,8 +40,8 @@ export const CollectionScreen: React.FC<CollectionScreenProps> = ({ onBack }) =>
             >
               <div className="space-y-2.5">
                 <div className="flex items-center gap-3">
-                  <div className="w-16 h-16 shrink-0 rounded bg-[#0D0F10] border border-[#252A2E] flex items-center justify-center">
-                    <CharacterPortrait classId={cls.id} size={48} />
+                  <div className="w-[72px] h-[72px] shrink-0 rounded-lg bg-[#0D0F10] border border-[#252A2E] flex items-center justify-center">
+                    <CharacterPortrait classId={cls.id} size={58} />
                   </div>
                   <div className="min-w-0">
                     <h2 className="font-display text-base font-bold text-[#F5E6C4] truncate">

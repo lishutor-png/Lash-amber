@@ -31,7 +31,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             soundEngine.playClick();
             onBack();
           }}
-          className="min-h-[40px] px-3 py-1.5 rounded bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-medium flex items-center gap-2 cursor-pointer"
+          className="min-h-[44px] px-4 py-1.5 rounded-lg bg-[#1C2024] hover:bg-[#272C31] border border-[#3A4046] text-xs font-semibold flex items-center gap-2 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Kembali</span>
@@ -57,7 +57,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             <button
               type="button"
               onClick={() => toggle('sfxEnabled')}
-              className={`min-h-[40px] px-4 py-1.5 rounded border text-xs font-semibold flex items-center gap-2 cursor-pointer ${
+              className={`min-h-[44px] px-4 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-2 cursor-pointer ${
                 settings.sfxEnabled
                   ? 'bg-[#17281E] border-[#C89B3C] text-[#F5E6C4]'
                   : 'bg-[#1C2024] border-[#3A4046] text-[#8F969E]'
@@ -107,7 +107,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             <button
               type="button"
               onClick={() => toggle('showMinimap')}
-              className={`min-h-[40px] px-4 py-1.5 rounded border text-xs font-semibold cursor-pointer ${
+              className={`min-h-[44px] px-4 py-1.5 rounded-lg border text-xs font-semibold cursor-pointer ${
                 settings.showMinimap
                   ? 'bg-[#17281E] border-[#C89B3C] text-[#F5E6C4]'
                   : 'bg-[#1C2024] border-[#3A4046] text-[#8F969E]'
@@ -128,7 +128,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             <button
               type="button"
               onClick={() => toggle('showControlHints')}
-              className={`min-h-[40px] px-4 py-1.5 rounded border text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
+              className={`min-h-[44px] px-4 py-1.5 rounded-lg border text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
                 settings.showControlHints
                   ? 'bg-[#17281E] border-[#C89B3C] text-[#F5E6C4]'
                   : 'bg-[#1C2024] border-[#3A4046] text-[#8F969E]'
@@ -136,6 +136,38 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
             >
               {settings.showControlHints ? 'Tampil' : 'Sembunyi'}
             </button>
+          </div>
+
+          {/* Touch Joystick Side */}
+          <div className="flex items-center justify-between gap-4 pb-3 border-b border-[#252A2E]">
+            <div>
+              <div className="text-sm font-semibold text-[#F5E6C4]">Posisi Joystick Sentuh</div>
+              <div className="text-xs text-[#8F969E]">
+                Atur sisi joystick virtual untuk kenyamanan ibu jari kiri atau kanan.
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {(['left', 'right'] as const).map((side) => {
+                const active = (settings.touchJoystickSide ?? 'left') === side;
+                return (
+                  <button
+                    key={side}
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playClick();
+                      onUpdateSettings({ ...settings, touchJoystickSide: side });
+                    }}
+                    className={`min-h-[44px] px-4 py-1.5 rounded-lg border text-xs font-semibold cursor-pointer ${
+                      active
+                        ? 'bg-[#C89B3C] border-[#F5E6C4] text-[#0D0F10]'
+                        : 'bg-[#1C2024] border-[#3A4046] text-[#E6E2D8] hover:bg-[#272C31]'
+                    }`}
+                  >
+                    {side === 'left' ? 'Kiri' : 'Kanan'}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Camera Zoom Selector */}
@@ -164,7 +196,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
                       soundEngine.playClick();
                       onUpdateSettings({ ...settings, cameraZoom: opt.id });
                     }}
-                    className={`min-h-[40px] px-3 py-1.5 rounded border text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
+                    className={`min-h-[44px] px-3.5 py-1.5 rounded-lg border text-xs font-semibold cursor-pointer whitespace-nowrap shrink-0 ${
                       active
                         ? 'bg-[#C89B3C] border-[#F5E6C4] text-[#0D0F10]'
                         : 'bg-[#1C2024] border-[#3A4046] text-[#E6E2D8] hover:bg-[#272C31]'

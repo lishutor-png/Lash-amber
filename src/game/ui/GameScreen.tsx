@@ -13,6 +13,7 @@ import {
   Map as MapIcon,
   Coins,
   AlertTriangle,
+  Sparkles,
 } from 'lucide-react';
 import { CHARACTER_CLASSES } from '../character/classes';
 import {
@@ -410,6 +411,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({
     const world = worldRef.current;
     const region = regionManagerRef.current.getCurrentRegion(world);
 
+    const swingNow = performance.now();
+    player.worldAttackStartedAt = swingNow;
+    player.worldAttackUntil = swingNow + 260;
+
     // 1. Check nearby Monster (Skeleton, Slime, Goblin, Wolf, Dark Creature)
     const nearbyMonster = regionManagerRef.current.findNearestMonster(
       region,
@@ -506,6 +511,96 @@ export const GameScreen: React.FC<GameScreenProps> = ({
       '#9BA3AB'
     );
   }, [handleGatherOrInteract, pushFloatingText]);
+
+  const handleSkillExploreAction = useCallback(() => {
+    if (isPausedRef.current) return;
+    const player = playerRef.current;
+    const world = worldRef.current;
+    const region = regionManagerRef.current.getCurrentRegion(world);
+    const clsInfo = CHARACTER_CLASSES[player.classId];
+    const leadSkill = clsInfo.skills[0];
+
+    const swingNow = performance.now();
+    player.worldAttackStartedAt = swingNow;
+    player.worldAttackUntil = swingNow + 320;
+    soundEngine.playSkill(leadSkill?.element ?? 'PHYSICAL');
+
+    const nearbyMonster = regionManagerRef.current.findNearestMonster(
+      region,
+      player.x,
+      player.y,
+      78
+    );
+    if (nearbyMonster) {
+      setCombatState(startCombat(player, nearbyMonster));
+      return;
+    }
+
+    const nearbyAnimal = regionManagerRef.current.findNearestWildlife(
+      region,
+      player.x,
+      player.y,
+      86
+    );
+    if (nearbyAnimal) {
+      if (nearbyAnimal.temperament === 'AGGRESSIVE' || nearbyAnimal.tameEligible) {
+        setCombatState(startCombat(player, createAnimalCombatMonster(nearbyAnimal)));
+        return;
+      }
+
+      const spentMana = player.mana >= 4;
+      if (spentMana) {
+        player.mana = Math.max(0, player.mana - 4);
+      }
+      const skillDmg = Math.max(
+        8,
+        Math.round((player.attack + (player.weaponDamage ?? 4)) * (spentMana ? 1.25 : 0.9))
+      );
+      nearbyAnimal.hp = Math.max(0, nearbyAnimal.hp - skillDmg);
+      nearbyAnimal.hitFlashUntil = Date.now() + 200;
+      nearbyAnimal.isEating = false;
+      if (nearbyAnimal.hp <= 0) {
+        nearbyAnimal.defeated = true;
+        world.defeatedAnimals[nearbyAnimal.id] = true;
+        player.animalsHunted = (player.animalsHunted ?? 0) + 1;
+        const drops = rollAnimalHuntLoot(nearbyAnimal.species, player);
+        drops.forEach((dr, idx) => {
+          regionManagerRef.current.addGroundLoot(world, region, {
+            id: `loot_${Date.now()}_${idx}_${Math.floor(Math.random() * 999)}`,
+            itemId: dr.itemId,
+            quantity: dr.quantity,
+            rarity: dr.rarity,
+            x: nearbyAnimal.x + (idx === 0 ? -8 : 10),
+            y: nearbyAnimal.y + (idx === 1 ? 6 : -4),
+            spawnedAt: Date.now(),
+          });
+        });
+        soundEngine.playVictory();
+        pushFloatingText(
+          nearbyAnimal.x,
+          nearbyAnimal.y - 18,
+          `${leadSkill?.name ?? 'Jurus'}: ${nearbyAnimal.name} tumbang!`,
+          '#FFD166'
+        );
+      } else {
+        pushFloatingText(
+          nearbyAnimal.x,
+          nearbyAnimal.y - 18,
+          `-${skillDmg} (${leadSkill?.name ?? 'Jurus'})`,
+          '#B388FF'
+        );
+      }
+      setHudTick((t) => t + 1);
+      return;
+    }
+
+    pushFloatingText(
+      player.x,
+      player.y - 24,
+      leadSkill ? `Jurus ${leadSkill.name}` : 'Ayunan Jurus',
+      '#B388FF'
+    );
+  }, [pushFloatingText]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -1065,17 +1160,18 @@ export const GameScreen: React.FC<GameScreenProps> = ({
   const hungerCritical = player.hunger <= 20;
   const thirstCritical = player.thirst <= 20;
   const nearWater = nearWaterRef.current !== null;
+  const joyOnRight = settings.touchJoystickSide === 'right';
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-[#0D0F10] select-none">
-      <canvas ref={canvasRef} className="w-full h-full block pixelated touch-none" />
+      <canvas ref={canvasRef} className="w-full h-full block illustrated-canvas touch-none" />
 
       {/* Landscape-First Non-Blocking HUD Overlay with Safe Inset Margins */}
-      <div className="pointer-events-none fixed inset-0 z-20 flex flex-col justify-between px-[max(0.75rem,env(safe-area-inset-left))] py-[max(0.6rem,env(safe-area-inset-top))]">
+      <div className="pointer-events-none fixed inset-0 z-20 flex flex-col justify-between pl-[max(0.85rem,env(safe-area-inset-left))] pr-[max(0.85rem,env(safe-area-inset-right))] pt-[max(0.6rem,env(safe-area-inset-top))] pb-[max(0.6rem,env(safe-area-inset-bottom))]">
         {/* TOP ROW: Compact Landscape Player Bars (Left) + Region & Minimap (Right) */}
         <div className="flex items-start justify-between gap-2">
           {/* TOP LEFT: Character Portrait + Survival Bars */}
-          <div className="pointer-events-auto bg-[#0D0F10]/85 border border-[#3A4046]/85 rounded p-2 flex items-center gap-2.5 max-w-[300px]">
+          <div className="pointer-events-auto bg-[#0D0F10]/88 border border-[#3A4046]/90 rounded-lg p-2 flex items-center gap-2.5 max-w-[320px] shadow-lg">
             <button
               type="button"
               onClick={() => {
@@ -1083,11 +1179,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({
                 setActiveModal('STATUS');
               }}
               aria-label="Buka Status Karakter"
-              className="w-11 h-11 shrink-0 rounded bg-[#14171A] border border-[#C89B3C]/65 flex items-center justify-center cursor-pointer"
+              className="w-14 h-14 shrink-0 rounded-lg bg-[#14171A] border border-[#C89B3C]/70 hover:border-[#E5B85A] flex items-center justify-center cursor-pointer active:scale-95 transition-transform"
             >
               <CharacterPortrait
                 classId={player.classId}
-                size={40}
+                size={48}
                 weaponVisual={player.equippedWeaponVisual}
                 armorVisual={player.equippedArmorVisual}
                 offhandVisual={player.equippedOffhandVisual}
@@ -1215,19 +1311,19 @@ export const GameScreen: React.FC<GameScreenProps> = ({
                 >
                   <canvas
                     ref={minimapRef}
-                    width={84}
-                    height={63}
-                    className="pixelated block"
+                    width={92}
+                    height={68}
+                    className="illustrated-canvas block"
                     aria-label="Peta Wilayah"
                   />
-                  <span className="absolute bottom-0.5 right-0.5 px-1 py-0.2 rounded bg-[#0D0F10]/85 text-[9px] font-bold text-[#E5B85A]">
+                  <span className="absolute bottom-0.5 right-0.5 px-1.5 py-0.5 rounded bg-[#0D0F10]/85 text-[10px] font-bold text-[#E5B85A]">
                     Peta
                   </span>
                 </button>
               )}
             </div>
 
-            <div className="pointer-events-auto flex flex-col gap-1.5">
+            <div className="pointer-events-auto flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -1235,9 +1331,9 @@ export const GameScreen: React.FC<GameScreenProps> = ({
                   setActiveModal('PAUSE');
                 }}
                 aria-label="Jeda dan Simpan"
-                className="min-h-[38px] min-w-[38px] rounded bg-[#0D0F10]/85 hover:bg-[#1C2024] border border-[#3A4046] flex items-center justify-center text-[#F5E6C4] cursor-pointer"
+                className="min-h-[48px] min-w-[48px] rounded-lg bg-[#0D0F10]/90 hover:bg-[#1C2024] active:scale-95 border border-[#3A4046] flex items-center justify-center text-[#F5E6C4] cursor-pointer shadow"
               >
-                <Pause className="w-4 h-4" />
+                <Pause className="w-5 h-5" />
               </button>
               <button
                 type="button"
@@ -1247,31 +1343,39 @@ export const GameScreen: React.FC<GameScreenProps> = ({
                 }}
                 aria-label="Buka Peta Dunia"
                 title="Peta Dunia (M)"
-                className="min-h-[38px] min-w-[38px] rounded bg-[#0D0F10]/85 hover:bg-[#1C2024] border border-[#3A4046] flex items-center justify-center text-[#E5B85A] cursor-pointer"
+                className="min-h-[48px] min-w-[48px] rounded-lg bg-[#0D0F10]/90 hover:bg-[#1C2024] active:scale-95 border border-[#3A4046] flex items-center justify-center text-[#E5B85A] cursor-pointer shadow"
               >
-                <MapIcon className="w-4 h-4" />
+                <MapIcon className="w-5 h-5" />
               </button>
               <button
                 type="button"
                 onClick={onToggleSfx}
                 aria-label={settings.sfxEnabled ? 'Matikan Suara' : 'Aktifkan Suara'}
-                className="min-h-[40px] min-w-[40px] rounded bg-[#0D0F10]/85 hover:bg-[#1C2024] border border-[#3A4046] flex items-center justify-center text-[#B8B2A6] cursor-pointer"
+                className="min-h-[48px] min-w-[48px] rounded-lg bg-[#0D0F10]/90 hover:bg-[#1C2024] active:scale-95 border border-[#3A4046] flex items-center justify-center text-[#B8B2A6] cursor-pointer shadow"
               >
                 {settings.sfxEnabled ? (
-                  <Volume2 className="w-4 h-4 text-[#C89B3C]" />
+                  <Volume2 className="w-5 h-5 text-[#C89B3C]" />
                 ) : (
-                  <VolumeX className="w-4 h-4" />
+                  <VolumeX className="w-5 h-5" />
                 )}
               </button>
             </div>
           </div>
         </div>
 
-        {/* BOTTOM ROW: Bottom-Left Virtual Joystick & Bottom-Right Action Controls */}
-        <div className="flex items-end justify-between gap-3 pb-1">
-          <div className="pointer-events-auto flex flex-col items-start gap-1">
+        {/* BOTTOM ROW: Virtual Joystick & Enlarged Touch Action Cluster */}
+        <div
+          className={`flex items-end justify-between gap-3 pb-1 ${
+            joyOnRight ? 'flex-row-reverse' : 'flex-row'
+          }`}
+        >
+          <div
+            className={`pointer-events-auto flex flex-col gap-1.5 ${
+              joyOnRight ? 'items-end' : 'items-start'
+            }`}
+          >
             {settings.showControlHints && (
-              <span className="hidden sm:inline-block text-[10px] font-mono-num text-[#9BA3AB] bg-[#0D0F10]/70 px-2 py-0.5 rounded">
+              <span className="hidden sm:inline-block text-[10px] font-mono-num text-[#9BA3AB] bg-[#0D0F10]/75 px-2.5 py-0.5 rounded border border-[#252A2E]">
                 WASD / Panah · Spasi Serang · E/F Interaksi
               </span>
             )}
@@ -1282,20 +1386,24 @@ export const GameScreen: React.FC<GameScreenProps> = ({
             />
           </div>
 
-          <div className="pointer-events-auto flex flex-col items-end gap-2">
+          <div
+            className={`pointer-events-auto flex flex-col gap-2 ${
+              joyOnRight ? 'items-start' : 'items-end'
+            }`}
+          >
             {contextHint && (
-              <div className="px-2.5 py-1 rounded bg-[#17281E]/92 border border-[#C89B3C]/75 text-[11px] font-semibold text-[#F5E6C4]">
+              <div className="px-3 py-1.5 rounded-lg bg-[#17281E]/94 border border-[#C89B3C]/80 text-xs font-semibold text-[#F5E6C4] shadow-lg">
                 {contextHint}
               </div>
             )}
 
-            <div className="flex items-end gap-2">
+            <div className="flex items-end gap-2.5">
               {nearWater && (
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-2">
                   <button
                     type="button"
                     onClick={handleOpenFishing}
-                    className="min-h-[44px] px-3 py-1.5 rounded bg-[#17281E]/95 hover:bg-[#264D34] active:scale-95 border border-[#8FC79A]/70 text-[#F5E6C4] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-lg whitespace-nowrap"
+                    className="min-h-[48px] px-3.5 py-2 rounded-xl bg-[#17281E]/95 hover:bg-[#264D34] active:scale-95 border border-[#8FC79A]/75 text-[#F5E6C4] text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg whitespace-nowrap"
                   >
                     <Fish className="w-4 h-4 shrink-0 text-[#FFD166]" />
                     <span>Mancing</span>
@@ -1303,7 +1411,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({
                   <button
                     type="button"
                     onClick={() => handleDrinkOrFillWater('FILL')}
-                    className="min-h-[44px] px-3 py-1.5 rounded bg-[#264E63]/95 hover:bg-[#31647E] active:scale-95 border border-[#7EC4E0]/70 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-lg whitespace-nowrap"
+                    className="min-h-[48px] px-3.5 py-2 rounded-xl bg-[#264E63]/95 hover:bg-[#31647E] active:scale-95 border border-[#7EC4E0]/75 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-lg whitespace-nowrap"
                   >
                     <Droplets className="w-4 h-4 shrink-0" />
                     <span>Isi Air</span>
@@ -1311,53 +1419,68 @@ export const GameScreen: React.FC<GameScreenProps> = ({
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={handleAttackAction}
-                  className="min-h-[48px] min-w-[96px] sm:min-w-[106px] px-3 py-2 rounded bg-[#9E2A2B]/90 hover:bg-[#B83335] active:scale-95 border border-[#E5989B]/40 text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-lg"
-                >
-                  <Sword className="w-4 h-4 shrink-0" />
-                  <span>Serang</span>
-                </button>
+              <div className="flex flex-col items-end gap-2">
+                {/* Row 1: Primary Combat / Action Touch Controls (54-60px) */}
+                <div className="flex items-end gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSkillExploreAction}
+                    className="min-h-[54px] min-w-[92px] sm:min-w-[100px] px-3 py-2 rounded-xl bg-[#291C3C]/92 hover:bg-[#3A2754] active:scale-95 border border-[#B388FF]/55 text-[#F5E6C4] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-lg"
+                  >
+                    <Sparkles className="w-4 h-4 shrink-0 text-[#B388FF]" />
+                    <span>Jurus</span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={handleGatherOrInteract}
-                  className={`min-h-[48px] min-w-[96px] sm:min-w-[106px] px-3 py-2 rounded active:scale-95 border text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-lg ${
-                    contextHint
-                      ? 'bg-[#C89B3C] hover:bg-[#E5B85A] border-[#F5E6C4] text-[#0D0F10]'
-                      : 'bg-[#17281E]/90 hover:bg-[#264D34] border-[#3B734D] text-[#F5E6C4]'
-                  }`}
-                >
-                  <Hand className="w-4 h-4 shrink-0" />
-                  <span>Interaksi</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={handleGatherOrInteract}
+                    className={`min-h-[58px] min-w-[110px] sm:min-w-[120px] px-3.5 py-2 rounded-xl active:scale-95 border text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg ${
+                      contextHint
+                        ? 'bg-[#C89B3C] hover:bg-[#E5B85A] border-[#F5E6C4] text-[#0D0F10]'
+                        : 'bg-[#17281E]/94 hover:bg-[#264D34] border-[#3B734D] text-[#F5E6C4]'
+                    }`}
+                  >
+                    <Hand className="w-5 h-5 shrink-0" />
+                    <span>Interaksi</span>
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundEngine.playClick();
-                    setInventoryMsg(null);
-                    setActiveModal('INVENTORY');
-                  }}
-                  className="min-h-[46px] min-w-[96px] sm:min-w-[106px] px-3 py-2 rounded bg-[#14171A]/90 hover:bg-[#22272B] active:scale-95 border border-[#5A626A] text-[#E6E2D8] text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer shadow-lg"
-                >
-                  <Backpack className="w-4 h-4 shrink-0 text-[#C89B3C]" />
-                  <span>Tas</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={handleAttackAction}
+                    className="min-h-[60px] min-w-[114px] sm:min-w-[124px] px-4 py-2 rounded-xl bg-[#9E2A2B]/95 hover:bg-[#B83335] active:scale-95 border border-[#E5989B]/55 text-white text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow-xl"
+                  >
+                    <Sword className="w-5 h-5 shrink-0" />
+                    <span>Serang</span>
+                  </button>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundEngine.playClick();
-                    setActiveModal('STATUS');
-                  }}
-                  className="min-h-[46px] min-w-[96px] sm:min-w-[106px] px-3 py-2 rounded bg-[#14171A]/90 hover:bg-[#22272B] active:scale-95 border border-[#5A626A] text-[#E6E2D8] text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer shadow-lg"
-                >
-                  <User className="w-4 h-4 shrink-0 text-[#7EC4E0]" />
-                  <span>Status</span>
-                </button>
+                {/* Row 2: Utility Panel Buttons (48px) */}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playClick();
+                      setInventoryMsg(null);
+                      setActiveModal('INVENTORY');
+                    }}
+                    className="min-h-[48px] min-w-[104px] sm:min-w-[112px] px-3.5 py-2 rounded-xl bg-[#14171A]/92 hover:bg-[#22272B] active:scale-95 border border-[#5A626A] text-[#E6E2D8] text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                  >
+                    <Backpack className="w-4 h-4 shrink-0 text-[#C89B3C]" />
+                    <span>Tas</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.playClick();
+                      setActiveModal('STATUS');
+                    }}
+                    className="min-h-[48px] min-w-[104px] sm:min-w-[112px] px-3.5 py-2 rounded-xl bg-[#14171A]/92 hover:bg-[#22272B] active:scale-95 border border-[#5A626A] text-[#E6E2D8] text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+                  >
+                    <User className="w-4 h-4 shrink-0 text-[#7EC4E0]" />
+                    <span>Status</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>

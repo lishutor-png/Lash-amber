@@ -23,6 +23,7 @@ export type ElementType =
 export type CharacterAnimState =
   | 'IDLE'
   | 'WALK'
+  | 'RUN'
   | 'ATTACK'
   | 'HEAVY_ATTACK'
   | 'TAKE_DAMAGE'
@@ -272,6 +273,7 @@ export type CraftingCategory =
   | 'BUILDING';
 
 export type ScreenRoute =
+  | 'SPLASH'
   | 'MAIN_MENU'
   | 'CHARACTER_SELECT'
   | 'LOAD_GAME'
@@ -316,7 +318,7 @@ export type InventoryFilterCategory =
   | 'TOOLS'
   | 'MISCELLANEOUS';
 
-export type InventorySortMode = 'NAME' | 'RARITY' | 'QUANTITY';
+export type InventorySortMode = 'NEWEST' | 'NAME' | 'RARITY' | 'QUANTITY';
 export type CameraZoomLevel = 'VERY_CLOSE' | 'CLOSE' | 'NORMAL' | 'FAR';
 
 export interface ClassSkillDef {
@@ -632,6 +634,10 @@ export interface PlayerState {
   fishCaught: number;
   inventory: Record<ItemId, number>;
   newlyAcquiredItems?: Partial<Record<ItemId, boolean>>;
+  itemAcquiredOrder?: Partial<Record<ItemId, number>>;
+  itemAcquiredSeq?: number;
+  worldAttackStartedAt?: number;
+  worldAttackUntil?: number;
   monstersDefeated: number;
   animalsHunted: number;
   resourcesGathered: number;
