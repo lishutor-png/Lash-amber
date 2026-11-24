@@ -20,11 +20,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Install dependencies & verify TypeScript
         run: |
-          npm ci
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-audit --no-fund
+          fi
           npm run lint
           npm run build
 
@@ -40,6 +43,15 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK Licenses
+        run: |
+          if [ -n "${ANDROID_HOME:-}" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          fi
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
@@ -47,7 +59,7 @@ jobs:
 
       - name: Run Unit Tests & Assemble Debug APK
         working-directory: android
-        run: gradle testDebugUnitTest assembleDebug --no-daemon
+        run: gradle testDebugUnitTest assembleDebug --no-daemon --stacktrace
 
       - name: Upload Debug APK Artifact
         uses: actions/upload-artifact@v4
@@ -70,11 +82,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Build web bundle & copy to Android assets
         run: |
-          npm ci
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install --no-audit --no-fund
+          fi
           npm run build
           rm -rf android/app/src/main/assets/www
           mkdir -p android/app/src/main/assets/www
@@ -85,6 +100,15 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Accept Android SDK Licenses
+        run: |
+          if [ -n "${ANDROID_HOME:-}" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          fi
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -101,7 +125,7 @@ jobs:
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > release.keystore
           export ANDROID_KEYSTORE_PATH="$PWD/release.keystore"
-          gradle assembleRelease --no-daemon
+          gradle assembleRelease --no-daemon --stacktrace
           rm -f release.keystore
 
       - name: Upload Release APK Artifact

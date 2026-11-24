@@ -36,13 +36,12 @@ Proyek Android di folder `android/` membungkus hasil build web `dist/` secara lo
 
 ### 1. Build Manual via Android Studio / CLI
 ```bash
-npm ci
+npm install
 npm run build
 rm -rf android/app/src/main/assets/www
 mkdir -p android/app/src/main/assets/www
 cp -r dist/* android/app/src/main/assets/www/
-cd android
-gradle testDebugUnitTest assembleDebug
+gradle -p android testDebugUnitTest assembleDebug
 ```
 Hasil APK berada di: `android/app/build/outputs/apk/debug/app-debug.apk`.
 
